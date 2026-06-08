@@ -1,0 +1,310 @@
+:root {
+  font-family: Arial, sans-serif;
+  color: #111827;
+  background: #f3f4f6;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  background: #f3f4f6;
+}
+
+body {
+  min-width: 320px;
+  min-height: 100vh;
+  margin: 0;
+  background: #f3f4f6;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  touch-action: manipulation;
+}
+
+.app-page {
+  min-height: 100vh;
+  padding: 24px;
+  overflow-x: hidden;
+  background: #f3f4f6;
+  color: #111827;
+}
+
+.app-container {
+  width: 100%;
+  max-width: 1200px;
+  min-width: 0;
+  margin: 0 auto;
+}
+
+.app-container--tracker {
+  max-width: 1000px;
+}
+
+.dashboard-week {
+  min-width: 0;
+  margin-bottom: 20px;
+}
+
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.dashboard-panel,
+.week-navigation,
+.tracker-card {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 16px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+}
+
+.dashboard-panel {
+  min-height: 260px;
+}
+
+.week-navigation__scroller {
+  width: 100%;
+  min-width: 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.week-navigation__grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.week-navigation__day {
+  min-height: 96px;
+  width: 100%;
+  padding: 12px 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+  color: #111827;
+  cursor: pointer;
+}
+
+.week-navigation__day.is-selected {
+  border: 2px solid #2563eb;
+  background: #eff6ff;
+}
+
+.week-navigation__workouts {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+.week-navigation__workout-icon {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 14px;
+  line-height: 1.1;
+}
+
+.tracker-header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 20px;
+}
+
+.tracker-card {
+  margin-bottom: 16px;
+}
+
+.tracker-add-exercise-row,
+.tracker-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.tracker-exercise-list {
+  display: grid;
+  gap: 16px;
+}
+
+.tracker-exercise-card {
+  margin-bottom: 0;
+}
+
+.tracker-set-list {
+  display: grid;
+  gap: 10px;
+}
+
+.tracker-set-row {
+  display: grid;
+  grid-template-columns:
+    minmax(48px, auto)
+    minmax(112px, max-content)
+    minmax(132px, max-content)
+    minmax(180px, 1fr)
+    auto;
+  align-items: center;
+  gap: 12px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+}
+
+.tracker-set-number {
+  font-weight: 700;
+}
+
+.tracker-set-field {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+}
+
+.tracker-set-field--notes {
+  min-width: 0;
+}
+
+.tracker-set-input {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+}
+
+.tracker-set-input--reps {
+  width: 80px;
+}
+
+.tracker-set-input--weight {
+  width: 100px;
+}
+
+.tracker-set-input--notes {
+  width: 100%;
+  max-width: 260px;
+}
+
+.tracker-set-remove {
+  justify-self: end;
+}
+
+.tracker-actions {
+  margin-top: 20px;
+}
+
+@media (max-width: 760px) {
+  .app-page {
+    padding: 12px;
+  }
+
+  .dashboard-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-panel,
+  .week-navigation,
+  .tracker-card {
+    border-radius: 12px;
+    padding: 14px;
+  }
+
+  .dashboard-panel {
+    min-height: auto;
+  }
+
+  .week-navigation__scroller {
+    margin-right: -14px;
+    margin-left: -14px;
+    padding-right: 14px;
+    padding-left: 14px;
+  }
+
+  .week-navigation__grid {
+    grid-template-columns: repeat(7, minmax(76px, 1fr));
+    min-width: 580px;
+  }
+
+  .week-navigation__day {
+    min-height: 84px;
+    padding: 10px 8px;
+  }
+
+  .tracker-header {
+    align-items: stretch;
+  }
+
+  .tracker-header > div,
+  .tracker-header > button {
+    width: 100%;
+  }
+
+  .tracker-add-exercise-row,
+  .tracker-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .tracker-add-exercise-row select,
+  .tracker-add-exercise-row button,
+  .tracker-actions button {
+    width: 100%;
+  }
+
+  .tracker-set-row {
+    grid-template-columns: 1fr 1fr auto;
+    align-items: end;
+  }
+
+  .tracker-set-number,
+  .tracker-set-field--notes {
+    grid-column: 1 / -1;
+  }
+
+  .tracker-set-field {
+    display: grid;
+    gap: 4px;
+  }
+
+  .tracker-set-input,
+  .tracker-set-input--notes {
+    width: 100%;
+    max-width: none;
+  }
+
+  .tracker-set-remove {
+    min-height: 42px;
+  }
+}
+
+@media (max-width: 420px) {
+  .tracker-set-row {
+    grid-template-columns: 1fr;
+  }
+
+  .tracker-set-remove {
+    width: 100%;
+    justify-self: stretch;
+  }
+}
