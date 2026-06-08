@@ -10,6 +10,34 @@ type Props = {
   onSaved: () => Promise<void> | void;
 };
 
+function hydrateWorkoutForTracking(workout: Workout): Workout {
+  return {
+    ...workout,
+    exercises: workout.exercises.map((workoutExercise) => ({
+      ...workoutExercise,
+      sets: workoutExercise.sets.map((set) => ({
+        ...set,
+        actualReps:
+          set.actualReps ?? set.reps ?? set.targetReps ?? 0,
+        actualWeight:
+          set.actualWeight ?? set.weight ?? set.targetWeight ?? 0,
+      })),
+    })),
+  };
+}
+
+function getTargetReps(set: WorkoutSet) {
+  return set.targetReps ?? set.reps;
+}
+
+function getTargetWeight(set: WorkoutSet) {
+  return set.targetWeight ?? set.weight;
+}
+
+function formatTargetValue(value: number | undefined, unit: string) {
+  return value === undefined ? `-- ${unit}` : `${value} ${unit}`;
+}
+
 export default function WorkoutTrackerPage({
   workout,
   exercises,
@@ -17,7 +45,9 @@ export default function WorkoutTrackerPage({
   onSaved,
 }: Props) {
   const [selectedExerciseId, setSelectedExerciseId] = useState("");
-  const [localWorkout, setLocalWorkout] = useState<Workout>(workout);
+  const [localWorkout, setLocalWorkout] = useState<Workout>(() =>
+    hydrateWorkoutForTracking(workout)
+  );
 
   const exerciseMap = useMemo(() => {
     return new Map(exercises.map((exercise) => [exercise.id, exercise]));
@@ -57,8 +87,8 @@ export default function WorkoutTrackerPage({
   const addSet = (exerciseIndex: number) => {
     const newSet: WorkoutSet = {
       id: crypto.randomUUID(),
-      reps: 0,
-      weight: 0,
+      actualReps: 0,
+      actualWeight: 0,
       notes: "",
     };
 
@@ -102,7 +132,7 @@ export default function WorkoutTrackerPage({
     exerciseIndex: number,
     setIndex: number,
     field: keyof WorkoutSet,
-    value: string | number | boolean
+    value: string | number | boolean | undefined
   ) => {
     setLocalWorkout((prev) => {
       const nextExercises = [...prev.exercises];
@@ -331,76 +361,96 @@ export default function WorkoutTrackerPage({
                   </label>
 
                   <div className="tracker-set-list">
-                    {workoutExercise.sets.map((set, setIndex) => (
-                      <div key={set.id} className="tracker-set-row">
-                        <span className="tracker-set-number">
-                          Set {setIndex + 1}
-                        </span>
+                    {workoutExercise.sets.map((set, setIndex) => {
+                      const targetReps = getTargetReps(set);
+                      const targetWeight = getTargetWeight(set);
 
-                        <label className="tracker-set-field">
-                          Reps{" "}
-                          <input
-                            type="number"
-                            value={set.reps}
-                            onChange={(e) =>
-                              updateSet(
-                                exerciseIndex,
-                                setIndex,
-                                "reps",
-                                Number(e.target.value)
-                              )
-                            }
-                            className="tracker-set-input tracker-set-input--reps"
-                          />
-                        </label>
+                      return (
+                        <div key={set.id} className="tracker-set-row">
+                          <span className="tracker-set-number">
+                            Set {setIndex + 1}
+                          </span>
 
-                        <label className="tracker-set-field">
-                          Weight{" "}
-                          <input
-                            type="number"
-                            value={set.weight}
-                            onChange={(e) =>
-                              updateSet(
-                                exerciseIndex,
-                                setIndex,
-                                "weight",
-                                Number(e.target.value)
-                              )
-                            }
-                            className="tracker-set-input tracker-set-input--weight"
-                          />
-                        </label>
+                          <div className="tracker-set-target">
+                            <span style={{ fontWeight: 600 }}>Target:</span>{" "}
+                            {formatTargetValue(targetReps, "reps")} x{" "}
+                            {formatTargetValue(targetWeight, "lb")}
+                          </div>
 
-                        <label className="tracker-set-field tracker-set-field--notes">
-                          Notes{" "}
-                          <input
-                            type="text"
-                            value={set.notes ?? ""}
-                            onChange={(e) =>
-                              updateSet(exerciseIndex, setIndex, "notes", e.target.value)
-                            }
-                            placeholder="Set note..."
-                            className="tracker-set-input tracker-set-input--notes"
-                          />
-                        </label>
+                          <label className="tracker-set-field">
+                            Actual Reps{" "}
+                            <input
+                              type="number"
+                              value={set.actualReps ?? ""}
+                              onChange={(e) =>
+                                updateSet(
+                                  exerciseIndex,
+                                  setIndex,
+                                  "actualReps",
+                                  e.target.value === ""
+                                    ? undefined
+                                    : Number(e.target.value)
+                                )
+                              }
+                              className="tracker-set-input tracker-set-input--reps"
+                            />
+                          </label>
 
-                        <button
-                          className="tracker-set-remove"
-                          onClick={() => removeSet(exerciseIndex, setIndex)}
-                          style={{
-                            padding: "6px 10px",
-                            borderRadius: 8,
-                            border: "none",
-                            background: "#ef4444",
-                            color: "#fff",
-                            cursor: "pointer",
-                            fontWeight: 700,
-                          }}
-                        >
-                          X
-                        </button>
-                      </div>
-                    ))}
+                          <label className="tracker-set-field">
+                            Actual Weight{" "}
+                            <input
+                              type="number"
+                              value={set.actualWeight ?? ""}
+                              onChange={(e) =>
+                                updateSet(
+                                  exerciseIndex,
+                                  setIndex,
+                                  "actualWeight",
+                                  e.target.value === ""
+                                    ? undefined
+                                    : Number(e.target.value)
+                                )
+                              }
+                              className="tracker-set-input tracker-set-input--weight"
+                            />
+                          </label>
+
+                          <label className="tracker-set-field tracker-set-field--notes">
+                            Notes{" "}
+                            <input
+                              type="text"
+                              value={set.notes ?? ""}
+                              onChange={(e) =>
+                                updateSet(
+                                  exerciseIndex,
+                                  setIndex,
+                                  "notes",
+                                  e.target.value
+                                )
+                              }
+                              placeholder="Set note..."
+                              className="tracker-set-input tracker-set-input--notes"
+                            />
+                          </label>
+
+                          <button
+                            className="tracker-set-remove"
+                            onClick={() => removeSet(exerciseIndex, setIndex)}
+                            style={{
+                              padding: "6px 10px",
+                              borderRadius: 8,
+                              border: "none",
+                              background: "#ef4444",
+                              color: "#fff",
+                              cursor: "pointer",
+                              fontWeight: 700,
+                            }}
+                          >
+                            X
+                          </button>
+                        </div>
+                      );
+                    })}
                   </div>
 
                   <button

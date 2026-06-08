@@ -160,6 +160,7 @@ button {
   display: grid;
   grid-template-columns:
     minmax(48px, auto)
+    minmax(160px, 1fr)
     minmax(112px, max-content)
     minmax(132px, max-content)
     minmax(180px, 1fr)
@@ -174,6 +175,11 @@ button {
 
 .tracker-set-number {
   font-weight: 700;
+}
+
+.tracker-set-target {
+  color: #374151;
+  line-height: 1.4;
 }
 
 .tracker-set-field {
@@ -278,6 +284,7 @@ button {
   }
 
   .tracker-set-number,
+  .tracker-set-target,
   .tracker-set-field--notes {
     grid-column: 1 / -1;
   }

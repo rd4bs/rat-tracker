@@ -4,7 +4,7 @@ import dayjs from "dayjs";
 import { db } from "@/db/db";
 import type { Exercise } from "@/types/exercise";
 import { EXERCISES } from "@/data/exercises";
-import type { Workout } from "@/types/workout";
+import type { Workout, WorkoutSet } from "@/types/workout";
 
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardGrid from "@/components/dashboard/DashboardGrid";
@@ -66,7 +66,10 @@ export default function DashboardPage() {
     date: string;
     name: string;
     notes: string;
-    exercises: string[];
+    exercises: {
+      exerciseId: string;
+      sets: WorkoutSet[];
+    }[];
   }) => {
     const newWorkout: Workout = {
       id: crypto.randomUUID(),
@@ -74,10 +77,10 @@ export default function DashboardPage() {
       name: values.name,
       notes: values.notes || undefined,
       status: "planned",
-      exercises: values.exercises.map((exerciseId) => ({
+      exercises: values.exercises.map((plannedExercise) => ({
         id: crypto.randomUUID(),
-        exerciseId,
-        sets: [],
+        exerciseId: plannedExercise.exerciseId,
+        sets: plannedExercise.sets,
       })),
     };
 

@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import type { Exercise } from "@/types/exercise";
-import type { Workout, WorkoutExercise } from "@/types/workout";
+import type { Workout, WorkoutExercise, WorkoutSet } from "@/types/workout";
 
 type Props = {
   isOpen: boolean;
@@ -68,6 +68,58 @@ export default function EditTodayPlanModal({
   const handleRemoveExercise = (workoutExerciseId: string) => {
     setPlannedExercises((current) =>
       current.filter((item) => item.id !== workoutExerciseId)
+    );
+  };
+
+  const handleAddPlannedSet = (workoutExerciseId: string) => {
+    const newSet: WorkoutSet = {
+      id: crypto.randomUUID(),
+    };
+
+    setPlannedExercises((current) =>
+      current.map((item) =>
+        item.id === workoutExerciseId
+          ? { ...item, sets: [...item.sets, newSet] }
+          : item
+      )
+    );
+  };
+
+  const handleRemovePlannedSet = (
+    workoutExerciseId: string,
+    setId: string
+  ) => {
+    setPlannedExercises((current) =>
+      current.map((item) =>
+        item.id === workoutExerciseId
+          ? {
+              ...item,
+              sets: item.sets.filter((set) => set.id !== setId),
+            }
+          : item
+      )
+    );
+  };
+
+  const handleUpdatePlannedSet = (
+    workoutExerciseId: string,
+    setId: string,
+    field: "targetReps" | "targetWeight",
+    value: string
+  ) => {
+    const nextValue = value === "" ? undefined : Number(value);
+
+    setPlannedExercises((current) =>
+      current.map((item) =>
+        item.id === workoutExerciseId
+          ? {
+              ...item,
+              sets: item.sets.map((set) =>
+                set.id === setId ? { ...set, [field]: nextValue } : set
+              ),
+            }
+          : item
+      )
     );
   };
 
@@ -197,34 +249,151 @@ export default function EditTodayPlanModal({
                     <div
                       key={workoutExercise.id}
                       style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        alignItems: "center",
-                        gap: 10,
                         padding: "10px 12px",
                         border: "1px solid #e5e7eb",
                         borderRadius: 10,
                         background: "#f9fafb",
                       }}
                     >
-                      <span>{exercise?.name ?? "Unknown Exercise"}</span>
+                      <div
+                        style={{
+                          display: "flex",
+                          justifyContent: "space-between",
+                          alignItems: "center",
+                          gap: 10,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        <strong>{exercise?.name ?? "Unknown Exercise"}</strong>
+
+                        <button
+                          type="button"
+                          onClick={() =>
+                            handleRemoveExercise(workoutExercise.id)
+                          }
+                          style={{
+                            padding: "6px 10px",
+                            borderRadius: 8,
+                            border: "none",
+                            background: "#dc2626",
+                            color: "#ffffff",
+                            fontWeight: 600,
+                            cursor: "pointer",
+                          }}
+                        >
+                          Remove
+                        </button>
+                      </div>
+
+                      {workoutExercise.sets.length === 0 ? (
+                        <p style={{ margin: "10px 0 0", color: "#6b7280" }}>
+                          No planned sets yet.
+                        </p>
+                      ) : (
+                        <div style={{ display: "grid", gap: 8, marginTop: 10 }}>
+                          {workoutExercise.sets.map((set, setIndex) => (
+                            <div
+                              key={set.id}
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 10,
+                                flexWrap: "wrap",
+                                padding: 10,
+                                border: "1px solid #e5e7eb",
+                                borderRadius: 8,
+                                background: "#ffffff",
+                              }}
+                            >
+                              <strong style={{ minWidth: 52 }}>
+                                Set {setIndex + 1}
+                              </strong>
+
+                              <label>
+                                Target Reps{" "}
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={set.targetReps ?? set.reps ?? ""}
+                                  onChange={(e) =>
+                                    handleUpdatePlannedSet(
+                                      workoutExercise.id,
+                                      set.id,
+                                      "targetReps",
+                                      e.target.value
+                                    )
+                                  }
+                                  style={{
+                                    width: 90,
+                                    padding: "8px 10px",
+                                    borderRadius: 8,
+                                    border: "1px solid #d1d5db",
+                                  }}
+                                />
+                              </label>
+
+                              <label>
+                                Target Weight{" "}
+                                <input
+                                  type="number"
+                                  min="0"
+                                  value={set.targetWeight ?? set.weight ?? ""}
+                                  onChange={(e) =>
+                                    handleUpdatePlannedSet(
+                                      workoutExercise.id,
+                                      set.id,
+                                      "targetWeight",
+                                      e.target.value
+                                    )
+                                  }
+                                  style={{
+                                    width: 110,
+                                    padding: "8px 10px",
+                                    borderRadius: 8,
+                                    border: "1px solid #d1d5db",
+                                  }}
+                                />
+                              </label>
+
+                              <button
+                                type="button"
+                                onClick={() =>
+                                  handleRemovePlannedSet(
+                                    workoutExercise.id,
+                                    set.id
+                                  )
+                                }
+                                style={{
+                                  padding: "6px 10px",
+                                  borderRadius: 8,
+                                  border: "none",
+                                  background: "#ef4444",
+                                  color: "#ffffff",
+                                  fontWeight: 700,
+                                  cursor: "pointer",
+                                }}
+                              >
+                                X
+                              </button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
 
                       <button
                         type="button"
-                        onClick={() =>
-                          handleRemoveExercise(workoutExercise.id)
-                        }
+                        onClick={() => handleAddPlannedSet(workoutExercise.id)}
                         style={{
-                          padding: "6px 10px",
+                          marginTop: 10,
+                          padding: "8px 12px",
                           borderRadius: 8,
-                          border: "none",
-                          background: "#dc2626",
-                          color: "#ffffff",
+                          border: "1px solid #d1d5db",
+                          background: "#ffffff",
                           fontWeight: 600,
                           cursor: "pointer",
                         }}
                       >
-                        Remove
+                        + Add Planned Set
                       </button>
                     </div>
                   );

@@ -3,11 +3,14 @@ export type WorkoutStatus = "planned" | "in_progress" | "completed";
 export type WorkoutSet = {
   id: string;
 
-  reps: number;
-  weight: number;
-
   targetReps?: number;
   targetWeight?: number;
+
+  actualReps?: number;
+  actualWeight?: number;
+
+  reps?: number;
+  weight?: number;
 
   durationSec?: number;
   distance?: number;
