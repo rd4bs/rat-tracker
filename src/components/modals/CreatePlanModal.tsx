@@ -181,6 +181,9 @@ export default function CreatePlanModal({
 
       resetForm();
       onClose();
+    } catch (error) {
+      console.error("Failed to save workout plan:", error);
+      setSaveError("Workout save failed. Try again.");
     } finally {
       setIsSaving(false);
     }

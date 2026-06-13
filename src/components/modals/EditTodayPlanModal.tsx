@@ -170,6 +170,9 @@ export default function EditTodayPlanModal({
       });
 
       onClose();
+    } catch (error) {
+      console.error("Failed to save workout plan:", error);
+      setSaveError("Workout save failed. Try again.");
     } finally {
       setIsSaving(false);
     }
@@ -203,8 +206,15 @@ export default function EditTodayPlanModal({
   };
 
   const handleDelete = async () => {
-    await onDelete(workout.id);
-    onClose();
+    setSaveError("");
+
+    try {
+      await onDelete(workout.id);
+      onClose();
+    } catch (error) {
+      console.error("Failed to delete workout:", error);
+      setSaveError("Workout delete failed. Try again.");
+    }
   };
 
   return (

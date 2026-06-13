@@ -49,6 +49,7 @@ export default function WorkoutTrackerPage({
   const [savingAction, setSavingAction] = useState<
     "progress" | "complete" | null
   >(null);
+  const [saveError, setSaveError] = useState("");
   const [localWorkout, setLocalWorkout] = useState<Workout>(() =>
     hydrateWorkoutForTracking(workout)
   );
@@ -187,6 +188,7 @@ export default function WorkoutTrackerPage({
     if (savingAction) return;
 
     setSavingAction("progress");
+    setSaveError("");
 
     try {
       await db.workouts.put({
@@ -196,6 +198,9 @@ export default function WorkoutTrackerPage({
 
       await onSaved();
       onBack();
+    } catch (error) {
+      console.error("Failed to save workout progress:", error);
+      setSaveError("Workout save failed. Try again.");
     } finally {
       setSavingAction(null);
     }
@@ -205,6 +210,7 @@ export default function WorkoutTrackerPage({
     if (savingAction) return;
 
     setSavingAction("complete");
+    setSaveError("");
 
     try {
       await db.workouts.put({
@@ -215,6 +221,9 @@ export default function WorkoutTrackerPage({
 
       await onSaved();
       onBack();
+    } catch (error) {
+      console.error("Failed to complete workout:", error);
+      setSaveError("Workout completion failed. Try again.");
     } finally {
       setSavingAction(null);
     }
@@ -502,6 +511,12 @@ export default function WorkoutTrackerPage({
             })
           )}
         </section>
+
+        {saveError ? (
+          <p className="app-alert app-alert--error" role="alert">
+            {saveError}
+          </p>
+        ) : null}
 
         <div className="tracker-actions">
           <button

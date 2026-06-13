@@ -1,9 +1,9 @@
 const items = [
-  { label: "Sleep", value: "—" },
-  { label: "Stress", value: "—" },
-  { label: "Travel", value: "—" },
-  { label: "Cardio", value: "—" },
-  { label: "Calories", value: "—" },
+  { label: "Sleep", value: "--" },
+  { label: "Stress", value: "--" },
+  { label: "Travel", value: "--" },
+  { label: "Cardio", value: "--" },
+  { label: "Calories", value: "--" },
 ];
 
 export default function HealthGaugesPanel() {

@@ -36,8 +36,13 @@ export default function DashboardPage() {
   const [backupMessage, setBackupMessage] = useState("");
   const [backupError, setBackupError] = useState("");
   const [isBackupBusy, setIsBackupBusy] = useState(false);
+  const [isLoadingData, setIsLoadingData] = useState(true);
+  const [dataMessage, setDataMessage] = useState("");
+  const [dataError, setDataError] = useState("");
 
   const loadData = async () => {
+    setIsLoadingData(true);
+
     try {
       const existingExercises = await db.exercises.count();
 
@@ -52,8 +57,12 @@ export default function DashboardPage() {
 
       setWorkouts(workoutList);
       setExercises(exerciseList);
+      setDataError("");
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
+      setDataError("Could not load local workout data.");
+    } finally {
+      setIsLoadingData(false);
     }
   };
 
@@ -69,6 +78,11 @@ export default function DashboardPage() {
     if (!activeWorkoutId) return null;
     return workouts.find((w) => w.id === activeWorkoutId) ?? null;
   }, [workouts, activeWorkoutId]);
+
+  const showSavedMessage = (message: string) => {
+    setDataMessage(`${message} at ${dayjs().format("h:mm A")}.`);
+    setDataError("");
+  };
 
   const handleCreatePlan = async (values: {
     date: string;
@@ -92,8 +106,18 @@ export default function DashboardPage() {
       })),
     };
 
-    await db.workouts.put(newWorkout);
-    await loadData();
+    setDataMessage("");
+    setDataError("");
+
+    try {
+      await db.workouts.put(newWorkout);
+      await loadData();
+      showSavedMessage("Workout saved");
+    } catch (error) {
+      console.error("Failed to create workout plan:", error);
+      setDataError("Workout save failed.");
+      throw error;
+    }
 
     if (values.date) {
       setSelectedDate(values.date);
@@ -101,13 +125,33 @@ export default function DashboardPage() {
   };
 
   const handleSaveEditedWorkout = async (updatedWorkout: Workout) => {
-    await db.workouts.put(updatedWorkout);
-    await loadData();
+    setDataMessage("");
+    setDataError("");
+
+    try {
+      await db.workouts.put(updatedWorkout);
+      await loadData();
+      showSavedMessage("Workout saved");
+    } catch (error) {
+      console.error("Failed to save workout:", error);
+      setDataError("Workout save failed.");
+      throw error;
+    }
   };
 
   const handleDeleteWorkout = async (workoutId: string) => {
-    await db.workouts.delete(workoutId);
-    await loadData();
+    setDataMessage("");
+    setDataError("");
+
+    try {
+      await db.workouts.delete(workoutId);
+      await loadData();
+      showSavedMessage("Workout deleted");
+    } catch (error) {
+      console.error("Failed to delete workout:", error);
+      setDataError("Workout delete failed.");
+      throw error;
+    }
 
     if (editingWorkout?.id === workoutId) {
       setEditingWorkout(null);
@@ -116,6 +160,13 @@ export default function DashboardPage() {
 
   const handleStartWorkout = (workout: Workout) => {
     setActiveWorkoutId(workout.id);
+  };
+
+  const handleTrackerSaved = async () => {
+    setDataMessage("");
+    setDataError("");
+    await loadData();
+    showSavedMessage("Workout saved");
   };
 
   const handleExportBackup = async () => {
@@ -176,7 +227,7 @@ export default function DashboardPage() {
         workout={activeWorkout}
         exercises={exercises}
         onBack={() => setActiveWorkoutId(null)}
-        onSaved={loadData}
+        onSaved={handleTrackerSaved}
       />
     );
   }
@@ -185,6 +236,24 @@ export default function DashboardPage() {
     <div className="app-page">
       <div className="app-container">
         <DashboardHeader selectedDate={selectedDate} />
+
+        {isLoadingData ? (
+          <p className="app-alert app-alert--info" role="status">
+            Loading local data...
+          </p>
+        ) : null}
+
+        {dataMessage ? (
+          <p className="app-alert app-alert--success" role="status">
+            {dataMessage}
+          </p>
+        ) : null}
+
+        {dataError ? (
+          <p className="app-alert app-alert--error" role="alert">
+            {dataError}
+          </p>
+        ) : null}
 
         <div className="dashboard-week">
           <WeekNavigation
