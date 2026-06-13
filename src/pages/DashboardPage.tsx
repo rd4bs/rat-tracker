@@ -17,6 +17,7 @@ import CreatePlanModal from "@/components/modals/CreatePlanModal";
 import EditTodayPlanModal from "@/components/modals/EditTodayPlanModal";
 import WorkoutTrackerPage from "@/pages/WorkoutTrackerPage";
 import NotesReviewModal from "@/components/modals/NotesReviewModal";
+import { createId } from "@/utils/id";
 
 export default function DashboardPage() {
   const [selectedDate, setSelectedDate] = useState(
@@ -72,13 +73,13 @@ export default function DashboardPage() {
     }[];
   }) => {
     const newWorkout: Workout = {
-      id: crypto.randomUUID(),
+      id: createId(),
       date: values.date,
       name: values.name,
       notes: values.notes || undefined,
       status: "planned",
       exercises: values.exercises.map((plannedExercise) => ({
-        id: crypto.randomUUID(),
+        id: createId(),
         exerciseId: plannedExercise.exerciseId,
         sets: plannedExercise.sets,
       })),

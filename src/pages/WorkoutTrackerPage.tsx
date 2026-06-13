@@ -1,7 +1,8 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type PointerEvent } from "react";
 import { db } from "@/db/db";
 import type { Exercise } from "@/types/exercise";
 import type { Workout, WorkoutExercise, WorkoutSet } from "@/types/workout";
+import { createId } from "@/utils/id";
 
 type Props = {
   workout: Workout;
@@ -45,6 +46,9 @@ export default function WorkoutTrackerPage({
   onSaved,
 }: Props) {
   const [selectedExerciseId, setSelectedExerciseId] = useState("");
+  const [savingAction, setSavingAction] = useState<
+    "progress" | "complete" | null
+  >(null);
   const [localWorkout, setLocalWorkout] = useState<Workout>(() =>
     hydrateWorkoutForTracking(workout)
   );
@@ -58,7 +62,7 @@ export default function WorkoutTrackerPage({
     if (!exercise) return;
 
     const newExercise: WorkoutExercise = {
-      id: crypto.randomUUID(),
+      id: createId(),
       exerciseId: exercise.id,
       sets: [],
       notes: "",
@@ -86,7 +90,7 @@ export default function WorkoutTrackerPage({
 
   const addSet = (exerciseIndex: number) => {
     const newSet: WorkoutSet = {
-      id: crypto.randomUUID(),
+      id: createId(),
       actualReps: 0,
       actualWeight: 0,
       notes: "",
@@ -180,24 +184,50 @@ export default function WorkoutTrackerPage({
     }));
   };
   const saveProgress = async () => {
-    await db.workouts.put({
-      ...localWorkout,
-      status: "in_progress",
-    });
+    if (savingAction) return;
 
-    await onSaved();
-    onBack();
+    setSavingAction("progress");
+
+    try {
+      await db.workouts.put({
+        ...localWorkout,
+        status: "in_progress",
+      });
+
+      await onSaved();
+      onBack();
+    } finally {
+      setSavingAction(null);
+    }
   };
 
   const completeWorkout = async () => {
-    await db.workouts.put({
-      ...localWorkout,
-      status: "completed",
-      completedAt: new Date().toISOString(),
-    });
+    if (savingAction) return;
 
-    await onSaved();
-    onBack();
+    setSavingAction("complete");
+
+    try {
+      await db.workouts.put({
+        ...localWorkout,
+        status: "completed",
+        completedAt: new Date().toISOString(),
+      });
+
+      await onSaved();
+      onBack();
+    } finally {
+      setSavingAction(null);
+    }
+  };
+
+  const handleSavePointerDown = (
+    event: PointerEvent<HTMLButtonElement>,
+    action: () => Promise<void>
+  ) => {
+    if (event.pointerType !== "touch" && event.pointerType !== "pen") return;
+
+    event.preventDefault();
+    void action();
   };
 
   return (
@@ -476,6 +506,10 @@ export default function WorkoutTrackerPage({
         <div className="tracker-actions">
           <button
             onClick={saveProgress}
+            onPointerDown={(event) =>
+              handleSavePointerDown(event, saveProgress)
+            }
+            disabled={!!savingAction}
             style={{
               padding: "12px 18px",
               borderRadius: 10,
@@ -483,14 +517,19 @@ export default function WorkoutTrackerPage({
               background: "#ffffff",
               color: "#111827",
               fontWeight: 700,
-              cursor: "pointer",
+              cursor: savingAction ? "not-allowed" : "pointer",
+              opacity: savingAction ? 0.7 : 1,
             }}
           >
-            Save Progress
+            {savingAction === "progress" ? "Saving..." : "Save Progress"}
           </button>
 
           <button
             onClick={completeWorkout}
+            onPointerDown={(event) =>
+              handleSavePointerDown(event, completeWorkout)
+            }
+            disabled={!!savingAction}
             style={{
               padding: "12px 18px",
               borderRadius: 10,
@@ -498,10 +537,11 @@ export default function WorkoutTrackerPage({
               background: "#111827",
               color: "#fff",
               fontWeight: 700,
-              cursor: "pointer",
+              cursor: savingAction ? "not-allowed" : "pointer",
+              opacity: savingAction ? 0.7 : 1,
             }}
           >
-            Complete Workout
+            {savingAction === "complete" ? "Saving..." : "Complete Workout"}
           </button>
         </div>
       </div>

@@ -1,6 +1,13 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useRef,
+  useState,
+  type PointerEvent,
+  type TouchEvent,
+} from "react";
 import type { Exercise } from "@/types/exercise";
 import type { WorkoutSet } from "@/types/workout";
+import { createId } from "@/utils/id";
 
 type PlannedExerciseDraft = {
   exerciseId: string;
@@ -33,9 +40,14 @@ export default function CreatePlanModal({
   const [name, setName] = useState("");
   const [notes, setNotes] = useState("");
   const [selectedExerciseId, setSelectedExerciseId] = useState("");
+  const [isSaving, setIsSaving] = useState(false);
+  const [saveError, setSaveError] = useState("");
   const [plannedExercises, setPlannedExercises] = useState<
     PlannedExerciseDraft[]
   >([]);
+  const workoutTypeRef = useRef<HTMLSelectElement>(null);
+  const exerciseSelectRef = useRef<HTMLSelectElement>(null);
+  const lastTouchActionAtRef = useRef(0);
 
   useEffect(() => {
     if (isOpen) {
@@ -50,6 +62,8 @@ export default function CreatePlanModal({
     setName("");
     setNotes("");
     setSelectedExerciseId("");
+    setIsSaving(false);
+    setSaveError("");
     setPlannedExercises([]);
   };
 
@@ -59,16 +73,29 @@ export default function CreatePlanModal({
   };
 
   const handleAddExercise = () => {
-    if (!selectedExerciseId) return;
+    const exerciseId = selectedExerciseId || exerciseSelectRef.current?.value;
+    if (!exerciseId) return;
+
+    setSaveError("");
 
     setPlannedExercises((currentExercises) => {
       if (
-        currentExercises.some((item) => item.exerciseId === selectedExerciseId)
+        currentExercises.some((item) => item.exerciseId === exerciseId)
       ) {
         return currentExercises;
       }
 
-      return [...currentExercises, { exerciseId: selectedExerciseId, sets: [] }];
+      return [
+        ...currentExercises,
+        {
+          exerciseId,
+          sets: [
+            {
+              id: createId(),
+            },
+          ],
+        },
+      ];
     });
 
     setSelectedExerciseId("");
@@ -82,8 +109,10 @@ export default function CreatePlanModal({
 
   const handleAddPlannedSet = (exerciseId: string) => {
     const newSet: WorkoutSet = {
-      id: crypto.randomUUID(),
+      id: createId(),
     };
+
+    setSaveError("");
 
     setPlannedExercises((currentExercises) =>
       currentExercises.map((item) =>
@@ -130,44 +159,63 @@ export default function CreatePlanModal({
   };
 
   const handleSave = async () => {
-    if (!name.trim()) return;
+    if (isSaving) return;
 
-    await onSave({
-      date,
-      name: name.trim(),
-      notes: notes.trim(),
-      exercises: plannedExercises,
-    });
+    const workoutName = name.trim() || workoutTypeRef.current?.value || "";
 
-    resetForm();
-    onClose();
+    if (!workoutName) {
+      setSaveError("Select a workout type before saving.");
+      return;
+    }
+
+    setIsSaving(true);
+    setSaveError("");
+
+    try {
+      await onSave({
+        date,
+        name: workoutName,
+        notes: notes.trim(),
+        exercises: plannedExercises,
+      });
+
+      resetForm();
+      onClose();
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const handleTouchPointerDown = (
+    event: PointerEvent<HTMLButtonElement>,
+    action: () => void | Promise<void>
+  ) => {
+    if (event.pointerType !== "touch" && event.pointerType !== "pen") return;
+
+    event.preventDefault();
+    const now = Date.now();
+    if (now - lastTouchActionAtRef.current < 350) return;
+
+    lastTouchActionAtRef.current = now;
+    void action();
+  };
+
+  const handleTouchStart = (
+    event: TouchEvent<HTMLButtonElement>,
+    action: () => void | Promise<void>
+  ) => {
+    event.preventDefault();
+
+    const now = Date.now();
+    if (now - lastTouchActionAtRef.current < 350) return;
+
+    lastTouchActionAtRef.current = now;
+    void action();
   };
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.4)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 16,
-        zIndex: 1000,
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 620,
-          maxHeight: "90vh",
-          overflowY: "auto",
-          background: "#ffffff",
-          borderRadius: 16,
-          padding: 20,
-          boxShadow: "0 10px 30px rgba(0,0,0,0.18)",
-        }}
-      >
+    <div className="modal-overlay">
+      <div className="modal-content">
         <h2 style={{ marginTop: 0 }}>Create / Plan Workout</h2>
 
         <div style={{ display: "grid", gap: 12 }}>
@@ -188,6 +236,7 @@ export default function CreatePlanModal({
           <label style={{ display: "grid", gap: 6 }}>
             <span style={{ fontWeight: 600 }}>Workout Type</span>
             <select
+              ref={workoutTypeRef}
               value={name}
               onChange={(e) => setName(e.target.value)}
               style={{
@@ -212,6 +261,7 @@ export default function CreatePlanModal({
 
             <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
               <select
+                ref={exerciseSelectRef}
                 value={selectedExerciseId}
                 onChange={(e) => setSelectedExerciseId(e.target.value)}
                 style={{
@@ -235,6 +285,12 @@ export default function CreatePlanModal({
               <button
                 type="button"
                 onClick={handleAddExercise}
+                onPointerDown={(event) =>
+                  handleTouchPointerDown(event, handleAddExercise)
+                }
+                onTouchStart={(event) =>
+                  handleTouchStart(event, handleAddExercise)
+                }
                 style={{
                   padding: "10px 14px",
                   borderRadius: 10,
@@ -309,6 +365,7 @@ export default function CreatePlanModal({
                           {plannedExercise.sets.map((set, setIndex) => (
                             <div
                               key={set.id}
+                              className="planned-set-row"
                               style={{
                                 display: "flex",
                                 alignItems: "center",
@@ -324,7 +381,7 @@ export default function CreatePlanModal({
                                 Set {setIndex + 1}
                               </strong>
 
-                              <label>
+                              <label className="planned-set-field">
                                 Target Reps{" "}
                                 <input
                                   type="number"
@@ -347,7 +404,7 @@ export default function CreatePlanModal({
                                 />
                               </label>
 
-                              <label>
+                              <label className="planned-set-field">
                                 Target Weight{" "}
                                 <input
                                   type="number"
@@ -400,6 +457,16 @@ export default function CreatePlanModal({
                         onClick={() =>
                           handleAddPlannedSet(plannedExercise.exerciseId)
                         }
+                        onPointerDown={(event) =>
+                          handleTouchPointerDown(event, () =>
+                            handleAddPlannedSet(plannedExercise.exerciseId)
+                          )
+                        }
+                        onTouchStart={(event) =>
+                          handleTouchStart(event, () =>
+                            handleAddPlannedSet(plannedExercise.exerciseId)
+                          )
+                        }
                         style={{
                           marginTop: 10,
                           padding: "8px 12px",
@@ -435,14 +502,20 @@ export default function CreatePlanModal({
           </label>
         </div>
 
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            gap: 10,
-            marginTop: 20,
-          }}
-        >
+        {saveError ? (
+          <p
+            role="alert"
+            style={{
+              margin: "14px 0 0",
+              color: "#b91c1c",
+              fontWeight: 600,
+            }}
+          >
+            {saveError}
+          </p>
+        ) : null}
+
+        <div className="modal-actions">
           <button
             type="button"
             onClick={handleClose}
@@ -460,6 +533,11 @@ export default function CreatePlanModal({
           <button
             type="button"
             onClick={handleSave}
+            onPointerDown={(event) =>
+              handleTouchPointerDown(event, handleSave)
+            }
+            onTouchStart={(event) => handleTouchStart(event, handleSave)}
+            disabled={isSaving}
             style={{
               padding: "10px 14px",
               borderRadius: 10,
@@ -467,10 +545,11 @@ export default function CreatePlanModal({
               background: "#2563eb",
               color: "#fff",
               fontWeight: 700,
-              cursor: "pointer",
+              cursor: isSaving ? "not-allowed" : "pointer",
+              opacity: isSaving ? 0.7 : 1,
             }}
           >
-            Save Workout
+            {isSaving ? "Saving..." : "Save Workout"}
           </button>
         </div>
       </div>
