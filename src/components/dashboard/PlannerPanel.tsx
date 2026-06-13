@@ -1,8 +1,33 @@
+import { useRef, type ChangeEvent } from "react";
+
 type Props = {
   onOpenCreatePlan: () => void;
+  onExportBackup: () => Promise<void> | void;
+  onImportBackup: (file: File) => Promise<void> | void;
+  backupMessage?: string;
+  backupError?: string;
+  isBackupBusy?: boolean;
 };
 
-export default function PlannerPanel({ onOpenCreatePlan }: Props) {
+export default function PlannerPanel({
+  onOpenCreatePlan,
+  onExportBackup,
+  onImportBackup,
+  backupMessage,
+  backupError,
+  isBackupBusy = false,
+}: Props) {
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImportFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.currentTarget.files?.[0];
+    event.currentTarget.value = "";
+
+    if (file) {
+      void onImportBackup(file);
+    }
+  };
+
   return (
     <div>
       <h2 style={{ marginTop: 0 }}>Plan / Schedule</h2>
@@ -25,6 +50,68 @@ export default function PlannerPanel({ onOpenCreatePlan }: Props) {
       >
         + Create / Plan Workout
       </button>
+
+      <div className="data-safety-actions">
+        <h3 style={{ margin: "0 0 4px" }}>Local Data</h3>
+
+        <div className="data-safety-buttons">
+          <button
+            type="button"
+            onClick={onExportBackup}
+            disabled={isBackupBusy}
+            style={{
+              padding: "10px 14px",
+              borderRadius: 10,
+              border: "1px solid #d1d5db",
+              background: "#ffffff",
+              color: "#111827",
+              fontWeight: 700,
+              cursor: isBackupBusy ? "not-allowed" : "pointer",
+              opacity: isBackupBusy ? 0.7 : 1,
+            }}
+          >
+            Export Backup
+          </button>
+
+          <button
+            type="button"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={isBackupBusy}
+            style={{
+              padding: "10px 14px",
+              borderRadius: 10,
+              border: "1px solid #d1d5db",
+              background: "#ffffff",
+              color: "#111827",
+              fontWeight: 700,
+              cursor: isBackupBusy ? "not-allowed" : "pointer",
+              opacity: isBackupBusy ? 0.7 : 1,
+            }}
+          >
+            Import Backup
+          </button>
+        </div>
+
+        <input
+          ref={fileInputRef}
+          type="file"
+          accept="application/json,.json"
+          onChange={handleImportFileChange}
+          style={{ display: "none" }}
+        />
+
+        {backupMessage ? (
+          <p className="data-safety-message" role="status">
+            {backupMessage}
+          </p>
+        ) : null}
+
+        {backupError ? (
+          <p className="data-safety-error" role="alert">
+            {backupError}
+          </p>
+        ) : null}
+      </div>
     </div>
   );
 }

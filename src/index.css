@@ -111,6 +111,35 @@ button {
   opacity: 0.7;
 }
 
+.data-safety-actions {
+  display: grid;
+  gap: 8px;
+  margin-top: 22px;
+  padding-top: 16px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.data-safety-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.data-safety-message,
+.data-safety-error {
+  margin: 2px 0 0;
+  line-height: 1.4;
+}
+
+.data-safety-message {
+  color: #166534;
+}
+
+.data-safety-error {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
 .dashboard-week {
   min-width: 0;
   margin-bottom: 20px;
@@ -399,8 +428,14 @@ button {
 
   .tracker-add-exercise-row select,
   .tracker-add-exercise-row button,
-  .tracker-actions button {
+  .tracker-actions button,
+  .data-safety-buttons button {
     width: 100%;
+  }
+
+  .data-safety-buttons {
+    display: grid;
+    grid-template-columns: 1fr;
   }
 
   .tracker-set-row {

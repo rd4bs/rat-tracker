@@ -2,6 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import dayjs from "dayjs";
 
 import { db } from "@/db/db";
+import {
+  createGymTrackerBackup,
+  importGymTrackerBackup,
+} from "@/db/backup";
 import type { Exercise } from "@/types/exercise";
 import { EXERCISES } from "@/data/exercises";
 import type { Workout, WorkoutSet } from "@/types/workout";
@@ -29,6 +33,9 @@ export default function DashboardPage() {
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
   const [activeWorkoutId, setActiveWorkoutId] = useState<string | null>(null);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
+  const [backupMessage, setBackupMessage] = useState("");
+  const [backupError, setBackupError] = useState("");
+  const [isBackupBusy, setIsBackupBusy] = useState(false);
 
   const loadData = async () => {
     try {
@@ -111,6 +118,58 @@ export default function DashboardPage() {
     setActiveWorkoutId(workout.id);
   };
 
+  const handleExportBackup = async () => {
+    setIsBackupBusy(true);
+    setBackupMessage("");
+    setBackupError("");
+
+    try {
+      const backup = await createGymTrackerBackup();
+      const blob = new Blob([JSON.stringify(backup, null, 2)], {
+        type: "application/json",
+      });
+      const url = URL.createObjectURL(blob);
+      const downloadLink = document.createElement("a");
+
+      downloadLink.href = url;
+      downloadLink.download = `gym-tracker-backup-${dayjs().format(
+        "YYYY-MM-DD-HHmm"
+      )}.json`;
+      document.body.appendChild(downloadLink);
+      downloadLink.click();
+      downloadLink.remove();
+      URL.revokeObjectURL(url);
+
+      setBackupMessage(
+        `Exported ${backup.workouts.length} workouts and ${backup.exercises.length} exercises.`
+      );
+    } catch (error) {
+      console.error("Failed to export backup:", error);
+      setBackupError("Backup export failed.");
+    } finally {
+      setIsBackupBusy(false);
+    }
+  };
+
+  const handleImportBackup = async (file: File) => {
+    setIsBackupBusy(true);
+    setBackupMessage("");
+    setBackupError("");
+
+    try {
+      const result = await importGymTrackerBackup(await file.text());
+      await loadData();
+      setBackupMessage(
+        `Imported ${result.workoutCount} workouts and ${result.exerciseCount} exercises.`
+      );
+    } catch (error) {
+      console.error("Failed to import backup:", error);
+      setBackupError("Backup import failed. Select a valid Gym Tracker backup.");
+    } finally {
+      setIsBackupBusy(false);
+    }
+  };
+
   if (activeWorkout) {
     return (
       <WorkoutTrackerPage
@@ -146,7 +205,14 @@ export default function DashboardPage() {
           }
           topRight={<HealthGaugesPanel />}
           bottomLeft={
-            <PlannerPanel onOpenCreatePlan={() => setIsCreatePlanOpen(true)} />
+            <PlannerPanel
+              onOpenCreatePlan={() => setIsCreatePlanOpen(true)}
+              onExportBackup={handleExportBackup}
+              onImportBackup={handleImportBackup}
+              backupMessage={backupMessage}
+              backupError={backupError}
+              isBackupBusy={isBackupBusy}
+            />
           }
           bottomRight={
             <MuscleDensityPanel
