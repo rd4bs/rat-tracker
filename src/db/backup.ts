@@ -24,6 +24,15 @@ export type BackupImportResult = {
   templateCount: number;
 };
 
+export type BackupImportMode = "overwrite" | "skipExisting";
+
+export type BackupImportPreview = {
+  exportedAt: string;
+  version: number;
+  counts: BackupImportResult;
+  conflicts: BackupImportResult;
+};
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -166,6 +175,77 @@ function parseBackup(value: unknown): GymTrackerBackup {
   return value as GymTrackerBackup;
 }
 
+function backupCounts(backup: GymTrackerBackup): BackupImportResult {
+  return {
+    exerciseCount: backup.exercises.length,
+    workoutCount: backup.workouts.length,
+    healthMetricCount: backup.healthMetrics?.length ?? 0,
+    templateCount: backup.workoutTemplates?.length ?? 0,
+  };
+}
+
+async function countExisting<T>(
+  records: T[],
+  getKey: (record: T) => string,
+  table: { bulkGet: (keys: string[]) => Promise<unknown[]> }
+) {
+  if (records.length === 0) return 0;
+
+  const existingRecords = await table.bulkGet(records.map(getKey));
+  return existingRecords.filter(Boolean).length;
+}
+
+async function filterNewRecords<T>(
+  records: T[],
+  getKey: (record: T) => string,
+  table: { bulkGet: (keys: string[]) => Promise<unknown[]> }
+) {
+  if (records.length === 0) return records;
+
+  const keys = records.map(getKey);
+  const existingRecords = await table.bulkGet(keys);
+
+  return records.filter((_, index) => !existingRecords[index]);
+}
+
+export async function previewGymTrackerBackup(
+  backupText: string
+): Promise<BackupImportPreview> {
+  const backup = parseBackup(JSON.parse(backupText));
+
+  const [
+    exerciseConflicts,
+    workoutConflicts,
+    healthMetricConflicts,
+    templateConflicts,
+  ] = await Promise.all([
+    countExisting(backup.exercises, (exercise) => exercise.id, db.exercises),
+    countExisting(backup.workouts, (workout) => workout.id, db.workouts),
+    countExisting(
+      backup.healthMetrics ?? [],
+      (healthMetric) => healthMetric.date,
+      db.healthMetrics
+    ),
+    countExisting(
+      backup.workoutTemplates ?? [],
+      (template) => template.id,
+      db.workoutTemplates
+    ),
+  ]);
+
+  return {
+    exportedAt: backup.exportedAt,
+    version: backup.version,
+    counts: backupCounts(backup),
+    conflicts: {
+      exerciseCount: exerciseConflicts,
+      workoutCount: workoutConflicts,
+      healthMetricCount: healthMetricConflicts,
+      templateCount: templateConflicts,
+    },
+  };
+}
+
 export async function createGymTrackerBackup(): Promise<GymTrackerBackup> {
   const [exercises, workouts, healthMetrics, workoutTemplates] =
     await Promise.all([
@@ -187,9 +267,43 @@ export async function createGymTrackerBackup(): Promise<GymTrackerBackup> {
 }
 
 export async function importGymTrackerBackup(
-  backupText: string
+  backupText: string,
+  mode: BackupImportMode = "overwrite"
 ): Promise<BackupImportResult> {
   const backup = parseBackup(JSON.parse(backupText));
+
+  const exercises =
+    mode === "skipExisting"
+      ? await filterNewRecords(
+          backup.exercises,
+          (exercise) => exercise.id,
+          db.exercises
+        )
+      : backup.exercises;
+  const workouts =
+    mode === "skipExisting"
+      ? await filterNewRecords(
+          backup.workouts,
+          (workout) => workout.id,
+          db.workouts
+        )
+      : backup.workouts;
+  const healthMetrics =
+    mode === "skipExisting"
+      ? await filterNewRecords(
+          backup.healthMetrics ?? [],
+          (healthMetric) => healthMetric.date,
+          db.healthMetrics
+        )
+      : backup.healthMetrics ?? [];
+  const workoutTemplates =
+    mode === "skipExisting"
+      ? await filterNewRecords(
+          backup.workoutTemplates ?? [],
+          (template) => template.id,
+          db.workoutTemplates
+        )
+      : backup.workoutTemplates ?? [];
 
   await db.transaction(
     "rw",
@@ -198,23 +312,23 @@ export async function importGymTrackerBackup(
     db.healthMetrics,
     db.workoutTemplates,
     async () => {
-      await db.exercises.bulkPut(backup.exercises);
-      await db.workouts.bulkPut(backup.workouts);
+      await db.exercises.bulkPut(exercises);
+      await db.workouts.bulkPut(workouts);
 
-      if (backup.healthMetrics?.length) {
-        await db.healthMetrics.bulkPut(backup.healthMetrics);
+      if (healthMetrics.length) {
+        await db.healthMetrics.bulkPut(healthMetrics);
       }
 
-      if (backup.workoutTemplates?.length) {
-        await db.workoutTemplates.bulkPut(backup.workoutTemplates);
+      if (workoutTemplates.length) {
+        await db.workoutTemplates.bulkPut(workoutTemplates);
       }
     }
   );
 
   return {
-    exerciseCount: backup.exercises.length,
-    workoutCount: backup.workouts.length,
-    healthMetricCount: backup.healthMetrics?.length ?? 0,
-    templateCount: backup.workoutTemplates?.length ?? 0,
+    exerciseCount: exercises.length,
+    workoutCount: workouts.length,
+    healthMetricCount: healthMetrics.length,
+    templateCount: workoutTemplates.length,
   };
 }

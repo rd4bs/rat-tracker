@@ -3,8 +3,11 @@ import dayjs from "dayjs";
 
 import { db } from "@/db/db";
 import {
+  type BackupImportMode,
+  type BackupImportPreview,
   createGymTrackerBackup,
   importGymTrackerBackup,
+  previewGymTrackerBackup,
 } from "@/db/backup";
 import type { Exercise } from "@/types/exercise";
 import type { DailyHealthMetrics } from "@/types/health";
@@ -25,6 +28,7 @@ import WorkoutHistoryModal from "@/components/modals/WorkoutHistoryModal";
 import ProgressHistoryModal from "@/components/modals/ProgressHistoryModal";
 import WorkoutTemplateModal from "@/components/modals/WorkoutTemplateModal";
 import DuplicateWorkoutModal from "@/components/modals/DuplicateWorkoutModal";
+import BackupImportPreviewModal from "@/components/modals/BackupImportPreviewModal";
 import WorkoutTrackerPage from "@/pages/WorkoutTrackerPage";
 import NotesReviewModal from "@/components/modals/NotesReviewModal";
 import { createId } from "@/utils/id";
@@ -62,6 +66,9 @@ export default function DashboardPage() {
   const [backupMessage, setBackupMessage] = useState("");
   const [backupError, setBackupError] = useState("");
   const [isBackupBusy, setIsBackupBusy] = useState(false);
+  const [pendingBackupText, setPendingBackupText] = useState("");
+  const [backupPreview, setBackupPreview] =
+    useState<BackupImportPreview | null>(null);
   const [isLoadingData, setIsLoadingData] = useState(true);
   const [dataMessage, setDataMessage] = useState("");
   const [dataError, setDataError] = useState("");
@@ -433,17 +440,47 @@ export default function DashboardPage() {
     setBackupError("");
 
     try {
-      const result = await importGymTrackerBackup(await file.text());
+      const backupText = await file.text();
+      const preview = await previewGymTrackerBackup(backupText);
+
+      setPendingBackupText(backupText);
+      setBackupPreview(preview);
+    } catch (error) {
+      console.error("Failed to preview backup:", error);
+      setBackupError("Backup preview failed. Select a valid Gym Tracker backup.");
+      setPendingBackupText("");
+      setBackupPreview(null);
+    } finally {
+      setIsBackupBusy(false);
+    }
+  };
+
+  const handleConfirmImportBackup = async (mode: BackupImportMode) => {
+    if (!pendingBackupText) return;
+
+    setIsBackupBusy(true);
+    setBackupMessage("");
+    setBackupError("");
+
+    try {
+      const result = await importGymTrackerBackup(pendingBackupText, mode);
       await loadData();
       setBackupMessage(
         `Imported ${result.workoutCount} workouts, ${result.exerciseCount} exercises, ${result.healthMetricCount} health entries, and ${result.templateCount} templates.`
       );
+      setPendingBackupText("");
+      setBackupPreview(null);
     } catch (error) {
       console.error("Failed to import backup:", error);
       setBackupError("Backup import failed. Select a valid Gym Tracker backup.");
     } finally {
       setIsBackupBusy(false);
     }
+  };
+
+  const handleCloseBackupPreview = () => {
+    setPendingBackupText("");
+    setBackupPreview(null);
   };
 
   if (activeWorkout) {
@@ -585,6 +622,13 @@ export default function DashboardPage() {
           initialDate={selectedDate}
           onClose={() => setDuplicatingWorkout(null)}
           onDuplicate={handleDuplicateWorkout}
+        />
+
+        <BackupImportPreviewModal
+          isOpen={!!backupPreview}
+          preview={backupPreview}
+          onClose={handleCloseBackupPreview}
+          onConfirm={handleConfirmImportBackup}
         />
 
         <NotesReviewModal

@@ -881,6 +881,41 @@ button {
   width: auto;
 }
 
+.backup-preview-grid {
+  display: grid;
+  grid-template-columns: minmax(120px, 1fr) auto minmax(150px, 1fr);
+  gap: 8px 12px;
+  margin: 14px 0;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.backup-preview-grid small {
+  color: #6b7280;
+}
+
+.backup-import-options {
+  display: grid;
+  gap: 8px;
+  margin: 0 0 14px;
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+}
+
+.backup-import-options legend {
+  padding: 0 4px;
+  font-weight: 700;
+}
+
+.backup-import-options label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .notes-header {
   display: flex;
   align-items: center;
@@ -1127,6 +1162,10 @@ button {
 
   .template-actions button {
     width: 100%;
+  }
+
+  .backup-preview-grid {
+    grid-template-columns: 1fr;
   }
 
   .exercise-library-toolbar,
