@@ -1,4 +1,4 @@
-const VERSION = "gym-tracker-pwa-v1";
+const VERSION = "rat-tracker-pwa-v1";
 const APP_CACHE = `${VERSION}-app`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
 
@@ -70,7 +70,7 @@ async function navigationResponse(request) {
       (await caches.match(request)) ||
       (await caches.match("/")) ||
       (await caches.match("/index.html")) ||
-      new Response("Gym Tracker is offline and the app shell is unavailable.", {
+      new Response("Rat Tracker is offline and the app shell is unavailable.", {
         status: 503,
         headers: { "Content-Type": "text/plain" },
       })

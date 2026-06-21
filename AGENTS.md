@@ -1,4 +1,4 @@
-# Gym Tracker PWA Instructions
+# Rat Tracker PWA Instructions
 
 ## Project purpose
 This is a single-user workout-tracking PWA designed for desktop and mobile use.

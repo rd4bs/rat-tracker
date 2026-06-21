@@ -1,7 +1,7 @@
 {
   "id": "/",
-  "name": "Gym Tracker",
-  "short_name": "Gym Tracker",
+  "name": "Rat Tracker",
+  "short_name": "Rat Tracker",
   "description": "Plan workouts, track sets, and review training notes offline.",
   "start_url": "/",
   "scope": "/",

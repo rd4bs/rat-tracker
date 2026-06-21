@@ -3,13 +3,14 @@ import type { Exercise } from "@/types/exercise";
 import type { DailyHealthMetrics } from "@/types/health";
 import type { Workout, WorkoutTemplate } from "@/types/workout";
 
-export class GymTrackerDB extends Dexie {
+export class RatTrackerDB extends Dexie {
   exercises!: Table<Exercise, string>;
   workouts!: Table<Workout, string>;
   healthMetrics!: Table<DailyHealthMetrics, string>;
   workoutTemplates!: Table<WorkoutTemplate, string>;
 
   constructor() {
+    // Keep the original IndexedDB name so existing local data remains available after the rebrand.
     super("gymTrackerDB");
 
     this.version(1).stores({
@@ -32,4 +33,4 @@ export class GymTrackerDB extends Dexie {
   }
 }
 
-export const db = new GymTrackerDB();
+export const db = new RatTrackerDB();

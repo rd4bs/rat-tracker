@@ -3,12 +3,17 @@ import type { Exercise } from "@/types/exercise";
 import type { DailyHealthMetrics } from "@/types/health";
 import type { Workout, WorkoutTemplate } from "@/types/workout";
 
-const BACKUP_APP_ID = "gym-tracker";
+const BACKUP_APP_ID = "rat-tracker";
+const LEGACY_BACKUP_APP_IDS = ["gym-tracker"] as const;
+const SUPPORTED_BACKUP_APP_IDS = [
+  BACKUP_APP_ID,
+  ...LEGACY_BACKUP_APP_IDS,
+] as const;
 const BACKUP_VERSION = 3;
 const SUPPORTED_BACKUP_VERSIONS = [1, 2, 3];
 
-export type GymTrackerBackup = {
-  app: typeof BACKUP_APP_ID;
+export type RatTrackerBackup = {
+  app: (typeof SUPPORTED_BACKUP_APP_IDS)[number];
   version: number;
   exportedAt: string;
   exercises: Exercise[];
@@ -131,13 +136,15 @@ function isWorkoutTemplate(value: unknown): value is WorkoutTemplate {
   });
 }
 
-function parseBackup(value: unknown): GymTrackerBackup {
+function parseBackup(value: unknown): RatTrackerBackup {
   if (!isRecord(value)) {
-    throw new Error("The selected file is not a Gym Tracker backup.");
+    throw new Error("The selected file is not a Rat Tracker backup.");
   }
 
   if (
-    value.app !== BACKUP_APP_ID ||
+    !SUPPORTED_BACKUP_APP_IDS.includes(
+      value.app as (typeof SUPPORTED_BACKUP_APP_IDS)[number]
+    ) ||
     typeof value.version !== "number" ||
     !SUPPORTED_BACKUP_VERSIONS.includes(value.version)
   ) {
@@ -172,10 +179,10 @@ function parseBackup(value: unknown): GymTrackerBackup {
     throw new Error("The selected backup contains invalid template data.");
   }
 
-  return value as GymTrackerBackup;
+  return value as RatTrackerBackup;
 }
 
-function backupCounts(backup: GymTrackerBackup): BackupImportResult {
+function backupCounts(backup: RatTrackerBackup): BackupImportResult {
   return {
     exerciseCount: backup.exercises.length,
     workoutCount: backup.workouts.length,
@@ -208,7 +215,7 @@ async function filterNewRecords<T>(
   return records.filter((_, index) => !existingRecords[index]);
 }
 
-export async function previewGymTrackerBackup(
+export async function previewRatTrackerBackup(
   backupText: string
 ): Promise<BackupImportPreview> {
   const backup = parseBackup(JSON.parse(backupText));
@@ -246,7 +253,7 @@ export async function previewGymTrackerBackup(
   };
 }
 
-export async function createGymTrackerBackup(): Promise<GymTrackerBackup> {
+export async function createRatTrackerBackup(): Promise<RatTrackerBackup> {
   const [exercises, workouts, healthMetrics, workoutTemplates] =
     await Promise.all([
     db.exercises.toArray(),
@@ -266,7 +273,7 @@ export async function createGymTrackerBackup(): Promise<GymTrackerBackup> {
   };
 }
 
-export async function importGymTrackerBackup(
+export async function importRatTrackerBackup(
   backupText: string,
   mode: BackupImportMode = "overwrite"
 ): Promise<BackupImportResult> {

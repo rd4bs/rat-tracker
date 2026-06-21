@@ -5,9 +5,9 @@ import { db } from "@/db/db";
 import {
   type BackupImportMode,
   type BackupImportPreview,
-  createGymTrackerBackup,
-  importGymTrackerBackup,
-  previewGymTrackerBackup,
+  createRatTrackerBackup,
+  importRatTrackerBackup,
+  previewRatTrackerBackup,
 } from "@/db/backup";
 import type { Exercise } from "@/types/exercise";
 import type { DailyHealthMetrics } from "@/types/health";
@@ -409,7 +409,7 @@ export default function DashboardPage() {
     setBackupError("");
 
     try {
-      const backup = await createGymTrackerBackup();
+      const backup = await createRatTrackerBackup();
       const blob = new Blob([JSON.stringify(backup, null, 2)], {
         type: "application/json",
       });
@@ -417,7 +417,7 @@ export default function DashboardPage() {
       const downloadLink = document.createElement("a");
 
       downloadLink.href = url;
-      downloadLink.download = `gym-tracker-backup-${dayjs().format(
+      downloadLink.download = `rat-tracker-backup-${dayjs().format(
         "YYYY-MM-DD-HHmm"
       )}.json`;
       document.body.appendChild(downloadLink);
@@ -443,13 +443,13 @@ export default function DashboardPage() {
 
     try {
       const backupText = await file.text();
-      const preview = await previewGymTrackerBackup(backupText);
+      const preview = await previewRatTrackerBackup(backupText);
 
       setPendingBackupText(backupText);
       setBackupPreview(preview);
     } catch (error) {
       console.error("Failed to preview backup:", error);
-      setBackupError("Backup preview failed. Select a valid Gym Tracker backup.");
+      setBackupError("Backup preview failed. Select a valid Rat Tracker backup.");
       setPendingBackupText("");
       setBackupPreview(null);
     } finally {
@@ -465,7 +465,7 @@ export default function DashboardPage() {
     setBackupError("");
 
     try {
-      const result = await importGymTrackerBackup(pendingBackupText, mode);
+      const result = await importRatTrackerBackup(pendingBackupText, mode);
       await loadData();
       setBackupMessage(
         `Imported ${result.workoutCount} workouts, ${result.exerciseCount} exercises, ${result.healthMetricCount} health entries, and ${result.templateCount} templates.`
@@ -474,7 +474,7 @@ export default function DashboardPage() {
       setBackupPreview(null);
     } catch (error) {
       console.error("Failed to import backup:", error);
-      setBackupError("Backup import failed. Select a valid Gym Tracker backup.");
+      setBackupError("Backup import failed. Select a valid Rat Tracker backup.");
     } finally {
       setIsBackupBusy(false);
     }

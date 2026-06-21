@@ -1,6 +1,6 @@
-# Gym Tracker PWA Phone Testing Guide
+# Rat Tracker PWA Phone Testing Guide
 
-This guide explains how to test the Gym Tracker app on desktop and phone, including the secure-context requirement for PWA install and offline behavior.
+This guide explains how to test the Rat Tracker app on desktop and phone, including the secure-context requirement for PWA install and offline behavior.
 
 ## Key Rule
 

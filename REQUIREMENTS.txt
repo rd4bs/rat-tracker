@@ -1,4 +1,4 @@
-Gym Tracker PWA Requirements
+Rat Tracker PWA Requirements
 Last updated: 2026-06-21
 
 Project Purpose
@@ -82,9 +82,12 @@ Completed Requirements So Far
 - Accessibility pass added readable workout/status markers, dialog semantics, and better date navigation labels.
 - Local HTTPS / secure-context PWA phone testing guide was added.
 - Production hosting checklist was documented.
+- App branding was changed to Rat Tracker / rat-tracker.
+- Existing IndexedDB data remains available after the rebrand.
+- Legacy backup files from the previous app name remain importable.
 
 Recent Checkpoint Commits
-- 3631c09 Implement gym tracker responsive baseline
+- 3631c09 Implement responsive baseline
 - d23357f Add planned set targets
 - e434045 Fix TypeScript path aliases
 - 1a1653a Fix mobile workout planning workflow
@@ -107,7 +110,8 @@ PWA Requirements
 - App must provide a way to apply available app updates.
 - App must preserve IndexedDB workout data across reloads, browser restarts, and installed-app launches.
 - App must support local backup/export of user data.
-- App must support local import/restore of a Gym Tracker backup.
+- App must support local import/restore of a Rat Tracker backup.
+- App must preserve compatibility with legacy backup files from the previous app name.
 - App must handle IndexedDB save/load failures gracefully.
 - Full service worker and install testing requires HTTPS or localhost. LAN HTTP can test the app UI, but browsers usually block service workers on http://192.168.x.x.
 
