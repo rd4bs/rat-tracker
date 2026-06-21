@@ -80,6 +80,8 @@ Completed Requirements So Far
 - Calendar/month planning view was added.
 - Automated data workflow checks were added for template and duplicate behavior.
 - Accessibility pass added readable workout/status markers, dialog semantics, and better date navigation labels.
+- Local HTTPS / secure-context PWA phone testing guide was added.
+- Production hosting checklist was documented.
 
 Recent Checkpoint Commits
 - 3631c09 Implement gym tracker responsive baseline
@@ -91,6 +93,10 @@ Recent Checkpoint Commits
 - 284250f Add PWA status controls
 - 05c8ea5 Add local data backup workflow
 - f7d5e2a Add workout data error states
+- 2ea36d4 Add backup import preview
+- 1a766af Add month planning view
+- b390384 Add data workflow checks
+- bf7f99e Improve accessibility semantics
 
 PWA Requirements
 - App must have a valid manifest.
@@ -114,13 +120,12 @@ Upcoming Requirements To Implement
 - Confirm offline workout editing.
 - Confirm offline workout tracking and save.
 - Confirm service worker update flow after a new build.
-- Add a documented local HTTPS testing workflow for phone testing.
 - Add a storage/data management screen if backup/import grows beyond the planner panel.
 - Add a clear data-reset option only if explicitly requested.
 - Add automated tests for backup validation.
 - Add automated tests for workout save/status transitions.
 - Add deeper accessibility testing with screen readers and keyboard-only mobile/desktop review.
-- Add production deployment checklist if the app will be hosted outside local development.
+- Choose and document the exact hosted HTTPS or local HTTPS setup after selecting the deployment/testing tool.
 
 Manual Retest Checklist
 - Desktop: load dashboard.
