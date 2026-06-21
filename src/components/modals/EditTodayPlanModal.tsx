@@ -222,7 +222,12 @@ export default function EditTodayPlanModal({
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
+      <div
+        className="modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Edit workout plan"
+      >
         <h2 style={{ marginTop: 0 }}>Edit Today&apos;s Plan</h2>
 
         <div style={{ display: "grid", gap: 12 }}>

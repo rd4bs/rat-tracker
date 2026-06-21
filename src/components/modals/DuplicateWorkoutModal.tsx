@@ -61,7 +61,12 @@ export default function DuplicateWorkoutModal({
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
+      <div
+        className="modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Duplicate workout"
+      >
         <h2 style={{ marginTop: 0 }}>Duplicate Workout</h2>
 
         <div className="duplicate-form">

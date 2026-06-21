@@ -1,7 +1,10 @@
 import dayjs from "dayjs";
 import type { Workout } from "@/types/workout";
 import { getWorkoutTypeIcon } from "@/utils/workoutIcons";
-import { getWorkoutStatusIcon } from "@/utils/workoutStatus";
+import {
+  getWorkoutStatusIcon,
+  getWorkoutStatusLabel,
+} from "@/utils/workoutStatus";
 
 type Props = {
   workouts: Workout[];
@@ -19,7 +22,7 @@ export default function WeekNavigation({
   const days = Array.from({ length: 7 }, (_, i) => {
     const date = startOfWeek.add(i, "day");
     const formatted = date.format("YYYY-MM-DD");
-    const dayWorkouts = workouts.filter((w) => w.date === formatted);
+    const dayWorkouts = workouts.filter((workout) => workout.date === formatted);
 
     return {
       label: date.format("dd"),
@@ -31,7 +34,7 @@ export default function WeekNavigation({
   });
 
   return (
-    <section className="week-navigation">
+    <section className="week-navigation" aria-label="Week navigation">
       <h2 style={{ marginTop: 0, marginBottom: 12 }}>
         Week of {startOfWeek.format("MMM D")}
       </h2>
@@ -45,6 +48,12 @@ export default function WeekNavigation({
                 day.isSelected ? " is-selected" : ""
               }`}
               onClick={() => onDateSelect(day.fullDate)}
+              aria-current={day.isSelected ? "date" : undefined}
+              aria-label={`${day.fullDate}: ${
+                day.workouts.length === 0
+                  ? "no workouts"
+                  : `${day.workouts.length} workouts`
+              }`}
             >
               <div style={{ fontSize: 12, color: "#6b7280" }}>{day.label}</div>
 
@@ -54,15 +63,15 @@ export default function WeekNavigation({
 
               <div className="week-navigation__workouts">
                 {day.workouts.length === 0 ? (
-                  <span style={{ fontSize: 12, color: "#9ca3af" }}>—</span>
+                  <span style={{ fontSize: 12, color: "#9ca3af" }}>-</span>
                 ) : (
                   day.workouts.map((workout) => (
                     <span
                       key={workout.id}
                       className="week-navigation__workout-icon"
-                      title={`${workout.name} - ${
-                        workout.status ?? "planned"
-                      }`}
+                      title={`${workout.name} - ${getWorkoutStatusLabel(
+                        workout.status
+                      )}`}
                     >
                       <span>{getWorkoutTypeIcon(workout.name)}</span>
                       <span>{getWorkoutStatusIcon(workout.status)}</span>

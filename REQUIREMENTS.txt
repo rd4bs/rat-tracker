@@ -79,6 +79,7 @@ Completed Requirements So Far
 - Backup import conflict handling was added.
 - Calendar/month planning view was added.
 - Automated data workflow checks were added for template and duplicate behavior.
+- Accessibility pass added readable workout/status markers, dialog semantics, and better date navigation labels.
 
 Recent Checkpoint Commits
 - 3631c09 Implement gym tracker responsive baseline
@@ -118,7 +119,7 @@ Upcoming Requirements To Implement
 - Add a clear data-reset option only if explicitly requested.
 - Add automated tests for backup validation.
 - Add automated tests for workout save/status transitions.
-- Add accessibility pass for keyboard navigation, labels, focus states, and screen-reader status messages.
+- Add deeper accessibility testing with screen readers and keyboard-only mobile/desktop review.
 - Add production deployment checklist if the app will be hosted outside local development.
 
 Manual Retest Checklist

@@ -52,7 +52,12 @@ export default function MonthPlanningModal({
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content modal-content--wide">
+      <div
+        className="modal-content modal-content--wide"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Month planning view"
+      >
         <div className="month-calendar-header">
           <button
             type="button"

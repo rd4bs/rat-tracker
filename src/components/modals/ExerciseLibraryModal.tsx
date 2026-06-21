@@ -200,7 +200,12 @@ export default function ExerciseLibraryModal({
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content modal-content--wide">
+      <div
+        className="modal-content modal-content--wide"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Exercise library"
+      >
         <h2 style={{ marginTop: 0 }}>Exercise Library</h2>
 
         <div className="exercise-library-layout">

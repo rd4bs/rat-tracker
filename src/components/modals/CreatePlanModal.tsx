@@ -221,7 +221,12 @@ export default function CreatePlanModal({
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
+      <div
+        className="modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Create or plan workout"
+      >
         <h2 style={{ marginTop: 0 }}>Create / Plan Workout</h2>
 
         <div style={{ display: "grid", gap: 12 }}>

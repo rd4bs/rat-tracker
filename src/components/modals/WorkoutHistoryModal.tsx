@@ -78,7 +78,12 @@ export default function WorkoutHistoryModal({
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content modal-content--wide">
+      <div
+        className="modal-content modal-content--wide"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Workout history"
+      >
         <h2 style={{ marginTop: 0 }}>Workout History</h2>
 
         <div className="history-filters">

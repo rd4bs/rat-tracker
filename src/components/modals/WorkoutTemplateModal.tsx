@@ -103,7 +103,12 @@ export default function WorkoutTemplateModal({
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content modal-content--wide">
+      <div
+        className="modal-content modal-content--wide"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Workout templates"
+      >
         <h2 style={{ marginTop: 0 }}>Workout Templates</h2>
 
         <div className="template-layout">

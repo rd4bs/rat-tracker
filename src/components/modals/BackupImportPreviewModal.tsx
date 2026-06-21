@@ -49,7 +49,12 @@ export default function BackupImportPreviewModal({
 
   return (
     <div className="modal-overlay">
-      <div className="modal-content">
+      <div
+        className="modal-content"
+        role="dialog"
+        aria-modal="true"
+        aria-label="Import backup preview"
+      >
         <h2 style={{ marginTop: 0 }}>Import Backup</h2>
 
         <p style={{ color: "#6b7280", lineHeight: 1.5 }}>
