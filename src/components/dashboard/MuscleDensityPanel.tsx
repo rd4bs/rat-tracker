@@ -1,5 +1,7 @@
+import { useMemo, useState } from "react";
 import type { Workout } from "@/types/workout";
 import type { Exercise } from "@/types/exercise";
+import type { WorkoutStatus } from "@/types/workout";
 
 type Props = {
   workouts: Workout[];
@@ -7,29 +9,76 @@ type Props = {
   onOpenNotes: () => void;
 };
 
+type StatusFilter = "all" | WorkoutStatus;
+
 export default function MuscleDensityPanel({ workouts, exercises, onOpenNotes, }: Props) {
-  const muscleCount: Record<string, number> = {};
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
 
-  workouts.forEach((w) => {
-    w.exercises.forEach((we) => {
-      const ex = exercises.find((e) => e.id === we.exerciseId);
-      if (!ex) return;
+  const exerciseMap = useMemo(() => {
+    return new Map(exercises.map((exercise) => [exercise.id, exercise]));
+  }, [exercises]);
 
-      [
-        ...ex.muscles.primary,
-        ...(ex.muscles.secondary ?? []),
-        ...(ex.muscles.stabilizer ?? []),
-      ].forEach((m) => {
-        muscleCount[m] = (muscleCount[m] ?? 0) + 1;
+  const filteredWorkouts = useMemo(() => {
+    return workouts
+      .filter((workout) =>
+        statusFilter === "all" ? true : workout.status === statusFilter
+      )
+      .filter((workout) => (fromDate ? workout.date >= fromDate : true))
+      .filter((workout) => (toDate ? workout.date <= toDate : true));
+  }, [fromDate, statusFilter, toDate, workouts]);
+
+  const entries = useMemo(() => {
+    const muscleCount: Record<string, number> = {};
+
+    filteredWorkouts.forEach((workout) => {
+      workout.exercises.forEach((workoutExercise) => {
+        const exercise = exerciseMap.get(workoutExercise.exerciseId);
+        if (!exercise) return;
+
+        [
+          ...exercise.muscles.primary,
+          ...(exercise.muscles.secondary ?? []),
+          ...(exercise.muscles.stabilizer ?? []),
+        ].forEach((muscle) => {
+          muscleCount[muscle] = (muscleCount[muscle] ?? 0) + 1;
+        });
       });
     });
-  });
 
-  const entries = Object.entries(muscleCount).sort((a, b) => b[1] - a[1]);
+    return Object.entries(muscleCount).sort((a, b) => b[1] - a[1]);
+  }, [exerciseMap, filteredWorkouts]);
 
   return (
     <div>
       <h2 style={{ marginTop: 0 }}>Muscle Density</h2>
+
+      <div className="density-filters">
+        <select
+          value={statusFilter}
+          onChange={(event) => setStatusFilter(event.target.value as StatusFilter)}
+        >
+          <option value="all">All statuses</option>
+          <option value="planned">Planned</option>
+          <option value="in_progress">In Progress</option>
+          <option value="completed">Completed</option>
+        </select>
+
+        <input
+          type="date"
+          value={fromDate}
+          onChange={(event) => setFromDate(event.target.value)}
+          aria-label="Muscle density start date"
+        />
+
+        <input
+          type="date"
+          value={toDate}
+          onChange={(event) => setToDate(event.target.value)}
+          aria-label="Muscle density end date"
+        />
+      </div>
 
       <button
         onClick={onOpenNotes}
@@ -49,7 +98,7 @@ export default function MuscleDensityPanel({ workouts, exercises, onOpenNotes, }
 
 
       {entries.length === 0 ? (
-        <p style={{ color: "#6b7280" }}>No muscles tracked yet.</p>
+        <p style={{ color: "#6b7280" }}>No muscles tracked for this range.</p>
       ) : (
         <div style={{ display: "grid", gap: 10 }}>
           {entries.map(([muscle, count]) => (
