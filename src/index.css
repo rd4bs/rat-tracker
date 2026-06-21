@@ -645,6 +645,57 @@ button {
   color: #374151;
 }
 
+.progress-summary {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.progress-summary > div {
+  display: grid;
+  gap: 4px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.progress-summary span {
+  color: #6b7280;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.progress-history-list {
+  display: grid;
+  gap: 10px;
+  max-height: 52vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.progress-entry {
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.progress-entry-header {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 8px;
+  color: #374151;
+}
+
+.progress-set-grid {
+  display: grid;
+  gap: 6px;
+  color: #374151;
+}
+
 @media (max-width: 760px) {
   .app-page {
     padding: 12px;
@@ -806,7 +857,8 @@ button {
   .exercise-library-layout,
   .exercise-library-item,
   .history-filters,
-  .history-layout {
+  .history-layout,
+  .progress-summary {
     grid-template-columns: 1fr;
   }
 

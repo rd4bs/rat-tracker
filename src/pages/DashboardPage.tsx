@@ -21,6 +21,7 @@ import CreatePlanModal from "@/components/modals/CreatePlanModal";
 import EditTodayPlanModal from "@/components/modals/EditTodayPlanModal";
 import ExerciseLibraryModal from "@/components/modals/ExerciseLibraryModal";
 import WorkoutHistoryModal from "@/components/modals/WorkoutHistoryModal";
+import ProgressHistoryModal from "@/components/modals/ProgressHistoryModal";
 import WorkoutTrackerPage from "@/pages/WorkoutTrackerPage";
 import NotesReviewModal from "@/components/modals/NotesReviewModal";
 import { createId } from "@/utils/id";
@@ -38,6 +39,7 @@ export default function DashboardPage() {
   const [isCreatePlanOpen, setIsCreatePlanOpen] = useState(false);
   const [isExerciseLibraryOpen, setIsExerciseLibraryOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [isProgressOpen, setIsProgressOpen] = useState(false);
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
   const [activeWorkoutId, setActiveWorkoutId] = useState<string | null>(null);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
@@ -368,6 +370,7 @@ export default function DashboardPage() {
               onOpenCreatePlan={() => setIsCreatePlanOpen(true)}
               onOpenExerciseLibrary={() => setIsExerciseLibraryOpen(true)}
               onOpenHistory={() => setIsHistoryOpen(true)}
+              onOpenProgress={() => setIsProgressOpen(true)}
               onExportBackup={handleExportBackup}
               onImportBackup={handleImportBackup}
               backupMessage={backupMessage}
@@ -415,6 +418,13 @@ export default function DashboardPage() {
           workouts={workouts}
           exercises={exercises}
           onClose={() => setIsHistoryOpen(false)}
+        />
+
+        <ProgressHistoryModal
+          isOpen={isProgressOpen}
+          workouts={workouts}
+          exercises={exercises}
+          onClose={() => setIsProgressOpen(false)}
         />
 
         <NotesReviewModal

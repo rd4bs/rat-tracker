@@ -8,6 +8,7 @@ type Props = {
   selectedExerciseId: string;
   onSelectExercise: (exerciseId: string) => void;
   label?: string;
+  includeArchived?: boolean;
 };
 
 function exerciseMuscles(exercise: Exercise) {
@@ -23,14 +24,18 @@ export default function ExercisePicker({
   selectedExerciseId,
   onSelectExercise,
   label = "Exercise",
+  includeArchived = false,
 }: Props) {
   const [search, setSearch] = useState("");
   const [muscleFilter, setMuscleFilter] = useState<Muscle | "">("");
   const [equipmentFilter, setEquipmentFilter] = useState("");
 
   const availableExercises = useMemo(
-    () => exercises.filter((exercise) => !exercise.isArchived),
-    [exercises]
+    () =>
+      includeArchived
+        ? exercises
+        : exercises.filter((exercise) => !exercise.isArchived),
+    [exercises, includeArchived]
   );
 
   const equipmentOptions = useMemo(() => {
@@ -116,6 +121,7 @@ export default function ExercisePicker({
           {filteredExercises.map((exercise) => (
             <option key={exercise.id} value={exercise.id}>
               {exercise.name}
+              {exercise.isArchived ? " (archived)" : ""}
             </option>
           ))}
         </select>
