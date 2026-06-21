@@ -1,0 +1,141 @@
+Gym Tracker PWA Requirements
+Last updated: 2026-06-21
+
+Project Purpose
+- Single-user workout-tracking PWA for desktop and mobile.
+- Store workout plans, workout results, exercise data, notes, and muscle-density information locally.
+- Preserve local Dexie / IndexedDB data unless an explicit migration is required.
+- Preserve the desktop layout while improving mobile usability.
+- Support use from desktop and phone during local-network testing.
+
+Technology Requirements
+- Vite
+- React
+- TypeScript
+- Dexie / IndexedDB
+- VS Code on Windows
+
+Development Rules
+- Inspect existing types and components before changing architecture.
+- Prefer small, testable changes.
+- Do not rename files or move folders unless required.
+- Preserve Dexie data compatibility.
+- Do not infer workout status from exercises or sets.
+- Workout status changes should come from explicit user actions.
+- Run lint/build after code changes and report any errors.
+- Commit stable checkpoints when requested so the project can be rolled back for debugging.
+- Do not mark a feature complete until desktop and phone behavior has been confirmed by the user.
+
+Completed Requirements So Far
+- Dashboard shows workout planning information.
+- Dashboard shows muscle-density information.
+- Workouts are stored in Dexie / IndexedDB.
+- Exercise data tracks primary, secondary, and stabilizer muscles.
+- Exercise seed data loads into Dexie when the database is empty.
+- Planned workouts can be created for a selected date.
+- Planned workouts can be edited.
+- Planned workouts can be deleted.
+- Workouts can be started from the dashboard.
+- Workout tracker supports workout notes.
+- Workout tracker supports exercise notes.
+- Workout tracker supports set notes.
+- Workout tracker supports planned target reps and target weight.
+- Workout tracker supports actual reps and actual weight.
+- Save Progress marks a workout as in progress.
+- Complete Workout marks a workout as completed and records completion time.
+- Existing legacy reps/weight fields are preserved for compatibility.
+- Responsive dashboard layout stacks on smaller screens.
+- Week navigation is horizontally scrollable on small screens.
+- Page padding is reduced on smaller screens.
+- Workout tracker set rows are usable on phones.
+- Mobile Save Workout, Add Planned Set, and Add Exercise flows have been fixed.
+- Direct crypto.randomUUID usage was replaced with a safe local ID helper for LAN/mobile compatibility.
+- TypeScript path alias configuration was fixed.
+- PWA manifest was added.
+- PWA icons were added.
+- PWA metadata was added to index.html.
+- Service worker was added for offline app-shell caching.
+- PWA status controls were added for online/offline, install, update, and HTTPS-needed status.
+- Local data export backup workflow was added.
+- Local data import backup workflow was added.
+- Save/load/delete error states were added.
+- Dashboard saved confirmations were added.
+
+Recent Checkpoint Commits
+- 3631c09 Implement gym tracker responsive baseline
+- d23357f Add planned set targets
+- e434045 Fix TypeScript path aliases
+- 1a1653a Fix mobile workout planning workflow
+- 52891de Add PWA manifest and app icons
+- 50afd77 Add offline service worker
+- 284250f Add PWA status controls
+- 05c8ea5 Add local data backup workflow
+- f7d5e2a Add workout data error states
+
+PWA Requirements
+- App must have a valid manifest.
+- App must have app icons for install surfaces.
+- App must register a service worker in a secure context.
+- App shell must be available offline after successful service worker installation.
+- App must show useful status for online/offline and PWA readiness.
+- App must provide a way to apply available app updates.
+- App must preserve IndexedDB workout data across reloads, browser restarts, and installed-app launches.
+- App must support local backup/export of user data.
+- App must support local import/restore of a Gym Tracker backup.
+- App must handle IndexedDB save/load failures gracefully.
+- Full service worker and install testing requires HTTPS or localhost. LAN HTTP can test the app UI, but browsers usually block service workers on http://192.168.x.x.
+
+Upcoming Requirements To Implement
+- Confirm PWA installability on desktop.
+- Confirm PWA installability on phone using HTTPS or another secure test setup.
+- Confirm offline launch after install.
+- Confirm offline dashboard reload.
+- Confirm offline workout creation.
+- Confirm offline workout editing.
+- Confirm offline workout tracking and save.
+- Confirm service worker update flow after a new build.
+- Add a documented local HTTPS testing workflow for phone testing.
+- Add a storage/data management screen if backup/import grows beyond the planner panel.
+- Add a clear data-reset option only if explicitly requested.
+- Add custom exercise creation.
+- Add custom exercise editing.
+- Add custom exercise deletion or archive behavior.
+- Add validation for duplicate custom exercise names.
+- Add exercise filtering/search in planning and tracking flows.
+- Add workout templates or duplicate-plan workflow.
+- Add calendar/month view if weekly planning becomes too limited.
+- Add history view for completed workouts.
+- Add per-exercise progress history.
+- Add muscle-density filters by date range and workout status.
+- Add notes review filters for workout, exercise, set, muscle, and machine/exercise.
+- Add health gauge inputs for sleep, stress, travel, cardio, and calories.
+- Add import conflict handling if backup files contain older records.
+- Add optional backup preview before import.
+- Add automated tests for backup validation.
+- Add automated tests for workout save/status transitions.
+- Add automated tests for planned target to actual tracking behavior.
+- Add accessibility pass for keyboard navigation, labels, focus states, and screen-reader status messages.
+- Add production deployment checklist if the app will be hosted outside local development.
+
+Manual Retest Checklist
+- Desktop: load dashboard.
+- Desktop: create a planned workout.
+- Desktop: add exercise and planned sets.
+- Desktop: save workout.
+- Desktop: start workout.
+- Desktop: add set results and save progress.
+- Desktop: complete workout.
+- Desktop: export backup.
+- Desktop: import backup.
+- Phone: load dashboard.
+- Phone: navigate week selector.
+- Phone: create a planned workout.
+- Phone: add exercise and planned sets.
+- Phone: save workout.
+- Phone: start workout.
+- Phone: add set results and save progress.
+- Phone: complete workout.
+- Secure-context phone test: install app.
+- Secure-context phone test: launch installed app offline.
+- Secure-context phone test: create/edit/save workout offline.
+- Secure-context phone test: reconnect and confirm data is still present.
