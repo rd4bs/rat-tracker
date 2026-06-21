@@ -68,6 +68,7 @@ Completed Requirements So Far
 - Workout history view was added.
 - Per-exercise progress history was added.
 - Muscle-density filters by date range and workout status were added.
+- Notes review filters for type, date, muscle, equipment, and exercise were added.
 
 Recent Checkpoint Commits
 - 3631c09 Implement gym tracker responsive baseline
@@ -107,7 +108,6 @@ Upcoming Requirements To Implement
 - Add a clear data-reset option only if explicitly requested.
 - Add workout templates or duplicate-plan workflow.
 - Add calendar/month view if weekly planning becomes too limited.
-- Add notes review filters for workout, exercise, set, muscle, and machine/exercise.
 - Add health gauge inputs for sleep, stress, travel, cardio, and calories.
 - Add import conflict handling if backup files contain older records.
 - Add optional backup preview before import.

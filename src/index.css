@@ -713,6 +713,74 @@ button {
   color: #374151;
 }
 
+.notes-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.notes-header h2 {
+  margin: 0;
+}
+
+.notes-header button {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  cursor: pointer;
+}
+
+.notes-filters {
+  display: grid;
+  grid-template-columns: minmax(180px, 1fr) repeat(4, minmax(130px, 0.7fr)) repeat(2, minmax(130px, 0.6fr));
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.notes-filters input,
+.notes-filters select {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.notes-list {
+  display: grid;
+  gap: 12px;
+  max-height: 58vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.notes-item {
+  padding: 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #f9fafb;
+}
+
+.notes-meta {
+  margin-bottom: 6px;
+  color: #6b7280;
+  font-size: 12px;
+}
+
+.notes-exercise-name {
+  margin-top: 4px;
+  color: #374151;
+}
+
+.notes-item p {
+  margin-bottom: 0;
+  line-height: 1.5;
+}
+
 @media (max-width: 760px) {
   .app-page {
     padding: 12px;
@@ -876,7 +944,8 @@ button {
   .exercise-library-item,
   .history-filters,
   .history-layout,
-  .progress-summary {
+  .progress-summary,
+  .notes-filters {
     grid-template-columns: 1fr;
   }
 

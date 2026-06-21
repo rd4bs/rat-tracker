@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
-import type { Workout } from "@/types/workout";
+import { MUSCLES } from "@/data/muscles";
 import type { Exercise } from "@/types/exercise";
+import type { Muscle } from "@/types/muscle";
+import type { Workout } from "@/types/workout";
 
 type NoteType = "workout" | "exercise" | "set";
 type ActiveFilter = "all" | NoteType;
@@ -17,10 +19,23 @@ type NoteItem = {
   type: NoteType;
   date: string;
   workoutName: string;
+  exerciseId?: string;
   exerciseName?: string;
+  equipment?: string[];
+  muscles?: Muscle[];
   setNumber?: number;
   note: string;
 };
+
+function exerciseMuscles(exercise: Exercise | undefined): Muscle[] {
+  if (!exercise) return [];
+
+  return [
+    ...exercise.muscles.primary,
+    ...(exercise.muscles.secondary ?? []),
+    ...(exercise.muscles.stabilizer ?? []),
+  ];
+}
 
 export default function NotesReviewModal({
   isOpen,
@@ -29,9 +44,25 @@ export default function NotesReviewModal({
   onClose,
 }: Props) {
   const [activeFilter, setActiveFilter] = useState<ActiveFilter>("all");
+  const [search, setSearch] = useState("");
+  const [fromDate, setFromDate] = useState("");
+  const [toDate, setToDate] = useState("");
+  const [muscleFilter, setMuscleFilter] = useState<Muscle | "">("");
+  const [equipmentFilter, setEquipmentFilter] = useState("");
+  const [exerciseFilter, setExerciseFilter] = useState("");
 
   const exerciseMap = useMemo(() => {
     return new Map(exercises.map((exercise) => [exercise.id, exercise]));
+  }, [exercises]);
+
+  const equipmentOptions = useMemo(() => {
+    return Array.from(
+      new Set(exercises.flatMap((exercise) => exercise.equipment ?? []))
+    ).sort((a, b) => a.localeCompare(b));
+  }, [exercises]);
+
+  const sortedExercises = useMemo(() => {
+    return [...exercises].sort((a, b) => a.name.localeCompare(b.name));
   }, [exercises]);
 
   const notes = useMemo<NoteItem[]>(() => {
@@ -50,6 +81,7 @@ export default function NotesReviewModal({
 
       workout.exercises.forEach((workoutExercise) => {
         const exercise = exerciseMap.get(workoutExercise.exerciseId);
+        const muscles = exerciseMuscles(exercise);
 
         if (workoutExercise.notes?.trim()) {
           items.push({
@@ -57,7 +89,10 @@ export default function NotesReviewModal({
             type: "exercise",
             date: workout.date,
             workoutName: workout.name || "Unnamed Workout",
+            exerciseId: workoutExercise.exerciseId,
             exerciseName: exercise?.name || "Unknown Exercise",
+            equipment: exercise?.equipment ?? [],
+            muscles,
             note: workoutExercise.notes,
           });
         }
@@ -69,7 +104,10 @@ export default function NotesReviewModal({
               type: "set",
               date: workout.date,
               workoutName: workout.name || "Unnamed Workout",
+              exerciseId: workoutExercise.exerciseId,
               exerciseName: exercise?.name || "Unknown Exercise",
+              equipment: exercise?.equipment ?? [],
+              muscles,
               setNumber: setIndex + 1,
               note: set.notes,
             });
@@ -82,143 +120,131 @@ export default function NotesReviewModal({
   }, [workouts, exerciseMap]);
 
   const filteredNotes = notes.filter((note) => {
-    if (activeFilter === "all") return true;
-    return note.type === activeFilter;
+    const normalizedSearch = search.trim().toLowerCase();
+
+    if (activeFilter !== "all" && note.type !== activeFilter) return false;
+    if (fromDate && note.date < fromDate) return false;
+    if (toDate && note.date > toDate) return false;
+    if (muscleFilter && !note.muscles?.includes(muscleFilter)) return false;
+    if (equipmentFilter && !note.equipment?.includes(equipmentFilter)) {
+      return false;
+    }
+    if (exerciseFilter && note.exerciseId !== exerciseFilter) return false;
+
+    if (!normalizedSearch) return true;
+
+    return [
+      note.note,
+      note.workoutName,
+      note.exerciseName ?? "",
+      note.date,
+    ].some((value) => value.toLowerCase().includes(normalizedSearch));
   });
 
   if (!isOpen) return null;
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        background: "rgba(0,0,0,0.45)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        padding: 16,
-        zIndex: 1000,
-      }}
-    >
-      <div
-        style={{
-          width: "100%",
-          maxWidth: 760,
-          maxHeight: "85vh",
-          background: "#ffffff",
-          borderRadius: 16,
-          padding: 20,
-          boxShadow: "0 10px 30px rgba(0,0,0,0.2)",
-          display: "flex",
-          flexDirection: "column",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            gap: 12,
-            alignItems: "center",
-            marginBottom: 14,
-          }}
-        >
-          <h2 style={{ margin: 0 }}>Notes Review</h2>
+    <div className="modal-overlay">
+      <div className="modal-content modal-content--wide">
+        <div className="notes-header">
+          <h2>Notes Review</h2>
 
-          <button
-            onClick={onClose}
-            style={{
-              border: "1px solid #d1d5db",
-              background: "#fff",
-              borderRadius: 8,
-              padding: "8px 10px",
-              cursor: "pointer",
-            }}
-          >
+          <button type="button" onClick={onClose}>
             Close
           </button>
         </div>
 
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 10 }}>
-          {(["all", "workout", "exercise", "set"] as ActiveFilter[]).map(
-            (filter) => (
-              <button
-                key={filter}
-                onClick={() => setActiveFilter(filter)}
-                style={{
-                  padding: "8px 12px",
-                  borderRadius: 999,
-                  border:
-                    activeFilter === filter
-                      ? "2px solid #2563eb"
-                      : "1px solid #d1d5db",
-                  background: activeFilter === filter ? "#eff6ff" : "#fff",
-                  cursor: "pointer",
-                  fontWeight: 600,
-                  textTransform: "capitalize",
-                }}
-              >
-                {filter}
-              </button>
-            )
-          )}
+        <div className="notes-filters">
+          <input
+            type="search"
+            value={search}
+            onChange={(event) => setSearch(event.target.value)}
+            placeholder="Search notes"
+          />
+
+          <select
+            value={activeFilter}
+            onChange={(event) =>
+              setActiveFilter(event.target.value as ActiveFilter)
+            }
+          >
+            <option value="all">All notes</option>
+            <option value="workout">Workout</option>
+            <option value="exercise">Exercise</option>
+            <option value="set">Set</option>
+          </select>
+
+          <select
+            value={muscleFilter}
+            onChange={(event) => setMuscleFilter(event.target.value as Muscle | "")}
+          >
+            <option value="">All muscles</option>
+            {MUSCLES.map((muscle) => (
+              <option key={muscle} value={muscle}>
+                {muscle}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={equipmentFilter}
+            onChange={(event) => setEquipmentFilter(event.target.value)}
+          >
+            <option value="">All equipment</option>
+            {equipmentOptions.map((equipment) => (
+              <option key={equipment} value={equipment}>
+                {equipment}
+              </option>
+            ))}
+          </select>
+
+          <select
+            value={exerciseFilter}
+            onChange={(event) => setExerciseFilter(event.target.value)}
+          >
+            <option value="">All exercises</option>
+            {sortedExercises.map((exercise) => (
+              <option key={exercise.id} value={exercise.id}>
+                {exercise.name}
+              </option>
+            ))}
+          </select>
+
+          <input
+            type="date"
+            value={fromDate}
+            onChange={(event) => setFromDate(event.target.value)}
+            aria-label="Notes start date"
+          />
+
+          <input
+            type="date"
+            value={toDate}
+            onChange={(event) => setToDate(event.target.value)}
+            aria-label="Notes end date"
+          />
         </div>
 
-        <div style={{ display: "flex", gap: 8, flexWrap: "wrap", marginBottom: 16 }}>
-          {["Most Recent", "History", "Muscle", "Machine / Exercise"].map((tab) => (
-            <button
-              key={tab}
-              disabled={tab !== "Most Recent"}
-              style={{
-                padding: "8px 12px",
-                borderRadius: 8,
-                border: "1px solid #e5e7eb",
-                background: tab === "Most Recent" ? "#111827" : "#f9fafb",
-                color: tab === "Most Recent" ? "#fff" : "#9ca3af",
-                cursor: tab === "Most Recent" ? "pointer" : "not-allowed",
-                fontWeight: 600,
-              }}
-            >
-              {tab}
-            </button>
-          ))}
-        </div>
-
-        <div
-          style={{
-            overflowY: "auto",
-            display: "grid",
-            gap: 12,
-            paddingRight: 4,
-          }}
-        >
+        <div className="notes-list">
           {filteredNotes.length === 0 ? (
             <p style={{ color: "#6b7280" }}>No notes found.</p>
           ) : (
             filteredNotes.map((item) => (
-              <div
-                key={item.id}
-                style={{
-                  border: "1px solid #e5e7eb",
-                  borderRadius: 12,
-                  padding: 12,
-                  background: "#f9fafb",
-                }}
-              >
-                <div style={{ fontSize: 12, color: "#6b7280", marginBottom: 6 }}>
-                  {item.date} · {item.type.toUpperCase()}
+              <div key={item.id} className="notes-item">
+                <div className="notes-meta">
+                  {item.date} | {item.type.toUpperCase()}
                 </div>
 
                 <strong>{item.workoutName}</strong>
 
                 {item.exerciseName ? (
-                  <div style={{ marginTop: 4, color: "#374151" }}>
+                  <div className="notes-exercise-name">
                     {item.exerciseName}
-                    {item.setNumber ? ` · Set ${item.setNumber}` : ""}
+                    {item.setNumber ? ` | Set ${item.setNumber}` : ""}
                   </div>
                 ) : null}
 
-                <p style={{ marginBottom: 0, lineHeight: 1.5 }}>{item.note}</p>
+                <p>{item.note}</p>
               </div>
             ))
           )}
