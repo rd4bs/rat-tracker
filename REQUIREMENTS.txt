@@ -87,6 +87,12 @@ Completed Requirements So Far
 - Legacy backup files from the previous app name remain importable.
 - GitHub Pages deployment workflow was added.
 - App paths, manifest links, and service worker scope support the GitHub Pages /rat-tracker/ path.
+- GitHub Pages deployment was confirmed at https://rd4bs.github.io/rat-tracker/.
+- Phone hosted HTTPS loading was confirmed.
+- Phone install / add-to-home-screen was confirmed.
+- Installed phone app offline launch was confirmed.
+- Offline workout create/edit/save was confirmed.
+- Offline-created or offline-edited data persistence after reconnect was confirmed.
 
 Recent Checkpoint Commits
 - 3631c09 Implement responsive baseline
@@ -119,19 +125,12 @@ PWA Requirements
 
 Upcoming Requirements To Implement
 - Confirm PWA installability on desktop.
-- Confirm PWA installability on phone using HTTPS or another secure test setup.
-- Confirm offline launch after install.
-- Confirm offline dashboard reload.
-- Confirm offline workout creation.
-- Confirm offline workout editing.
-- Confirm offline workout tracking and save.
 - Confirm service worker update flow after a new build.
 - Add a storage/data management screen if backup/import grows beyond the planner panel.
 - Add a clear data-reset option only if explicitly requested.
 - Add automated tests for backup validation.
 - Add automated tests for workout save/status transitions.
 - Add deeper accessibility testing with screen readers and keyboard-only mobile/desktop review.
-- Confirm GitHub Pages deployment at https://rd4bs.github.io/rat-tracker/.
 
 Manual Retest Checklist
 - Desktop: load dashboard.

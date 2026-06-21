@@ -95,26 +95,20 @@ Notes:
 
 Run this checklist only from a secure phone URL.
 
-- Open the secure URL on the phone.
-- Confirm the PWA status bar does not show `HTTPS Needed`.
-- Confirm the app reports offline-ready after the service worker installs.
-- Install the app from the browser.
-- Launch the installed app.
-- Create a planned workout.
-- Add exercises and planned sets.
-- Save the workout.
-- Start the workout.
-- Add actual set results.
-- Save progress.
-- Complete the workout.
-- Export a backup.
-- Turn on airplane mode.
-- Relaunch or reload the installed app.
-- Confirm the dashboard opens offline.
-- Confirm existing workout data is still present.
-- Create or edit a workout while offline.
-- Turn network access back on.
-- Confirm the offline-created or offline-edited data is still present.
+- Open the secure URL on the phone. Confirmed 2026-06-21.
+- Confirm the PWA status bar does not show `HTTPS Needed`. Confirmed 2026-06-21.
+- Confirm the app reports offline-ready after the service worker installs. Confirmed 2026-06-21.
+- Install the app from the browser. Confirmed 2026-06-21.
+- Launch the installed app. Confirmed 2026-06-21.
+- Turn on airplane mode. Confirmed 2026-06-21.
+- Relaunch or reload the installed app. Confirmed 2026-06-21.
+- Confirm the dashboard opens offline. Confirmed 2026-06-21.
+- Confirm existing workout data is still present. Confirmed 2026-06-21.
+- Create or edit a workout while offline. Confirmed 2026-06-21.
+- Turn network access back on. Confirmed 2026-06-21.
+- Confirm the offline-created or offline-edited data is still present. Confirmed 2026-06-21.
+- Start a workout, add actual set results, save progress, and complete the workout from the installed app.
+- Export a backup from the installed app.
 
 ## Service Worker Update Test
 

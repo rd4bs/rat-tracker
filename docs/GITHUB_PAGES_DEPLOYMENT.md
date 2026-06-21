@@ -39,6 +39,8 @@ After the workflow finishes, the app should be available at:
 https://rd4bs.github.io/rat-tracker/
 ```
 
+Deployment confirmed on desktop and phone on 2026-06-21.
+
 ## Check Deployment Status
 
 1. Open the repository on GitHub.
@@ -64,6 +66,7 @@ Confirm:
 - The app reaches offline-ready status.
 - The phone can install the app.
 - The installed app launches offline.
+- Offline create/edit/save persists after reconnect.
 
 ## Troubleshooting
 
