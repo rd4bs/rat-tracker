@@ -85,6 +85,8 @@ Completed Requirements So Far
 - App branding was changed to Rat Tracker / rat-tracker.
 - Existing IndexedDB data remains available after the rebrand.
 - Legacy backup files from the previous app name remain importable.
+- GitHub Pages deployment workflow was added.
+- App paths, manifest links, and service worker scope support the GitHub Pages /rat-tracker/ path.
 
 Recent Checkpoint Commits
 - 3631c09 Implement responsive baseline
@@ -129,7 +131,7 @@ Upcoming Requirements To Implement
 - Add automated tests for backup validation.
 - Add automated tests for workout save/status transitions.
 - Add deeper accessibility testing with screen readers and keyboard-only mobile/desktop review.
-- Choose and document the exact hosted HTTPS or local HTTPS setup after selecting the deployment/testing tool.
+- Confirm GitHub Pages deployment at https://rd4bs.github.io/rat-tracker/.
 
 Manual Retest Checklist
 - Desktop: load dashboard.

@@ -1,29 +1,35 @@
 const VERSION = "rat-tracker-pwa-v1";
 const APP_CACHE = `${VERSION}-app`;
 const RUNTIME_CACHE = `${VERSION}-runtime`;
+const BASE_PATH = new URL(self.registration.scope).pathname;
+
+function appPath(path = "") {
+  return `${BASE_PATH}${path}`;
+}
 
 const STATIC_URLS = [
-  "/",
-  "/index.html",
-  "/manifest.webmanifest",
-  "/icons/app-icon.svg",
-  "/icons/apple-touch-icon.png",
-  "/icons/icon-192.png",
-  "/icons/icon-512.png",
-  "/icons/maskable-512.png",
+  appPath(),
+  appPath("index.html"),
+  appPath("manifest.webmanifest"),
+  appPath("icons/app-icon.svg"),
+  appPath("icons/apple-touch-icon.png"),
+  appPath("icons/icon-192.png"),
+  appPath("icons/icon-512.png"),
+  appPath("icons/maskable-512.png"),
 ];
 
 async function cacheAppShell() {
   const cache = await caches.open(APP_CACHE);
   await cache.addAll(STATIC_URLS);
 
-  const response = await fetch("/", { cache: "reload" });
-  await cache.put("/", response.clone());
+  const response = await fetch(appPath(), { cache: "reload" });
+  await cache.put(appPath(), response.clone());
 
   const html = await response.text();
+  const assetPath = appPath("assets/");
   const assetUrls = [...html.matchAll(/(?:href|src)="([^"]+)"/g)]
     .map((match) => match[1])
-    .filter((url) => url.startsWith("/assets/"));
+    .filter((url) => url.startsWith(assetPath));
 
   await Promise.all(
     assetUrls.map((url) =>
@@ -63,13 +69,13 @@ async function navigationResponse(request) {
   try {
     const response = await fetch(request);
     const cache = await caches.open(APP_CACHE);
-    cache.put("/", response.clone());
+    cache.put(appPath(), response.clone());
     return response;
   } catch {
     return (
       (await caches.match(request)) ||
-      (await caches.match("/")) ||
-      (await caches.match("/index.html")) ||
+      (await caches.match(appPath())) ||
+      (await caches.match(appPath("index.html"))) ||
       new Response("Rat Tracker is offline and the app shell is unavailable.", {
         status: 503,
         headers: { "Content-Type": "text/plain" },
@@ -107,9 +113,9 @@ self.addEventListener("fetch", (event) => {
   }
 
   if (
-    url.pathname.startsWith("/assets/") ||
-    url.pathname.startsWith("/icons/") ||
-    url.pathname === "/manifest.webmanifest"
+    url.pathname.startsWith(appPath("assets/")) ||
+    url.pathname.startsWith(appPath("icons/")) ||
+    url.pathname === appPath("manifest.webmanifest")
   ) {
     event.respondWith(staleWhileRevalidate(event.request));
   }

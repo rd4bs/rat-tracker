@@ -151,8 +151,10 @@ export function registerServiceWorker() {
   });
 
   window.addEventListener("load", () => {
+    const baseUrl = import.meta.env.BASE_URL;
+
     navigator.serviceWorker
-      .register("/sw.js")
+      .register(`${baseUrl}sw.js`, { scope: baseUrl })
       .then((registration) => {
         if (registration.active || navigator.serviceWorker.controller) {
           emitStatus({ isOfflineReady: true });

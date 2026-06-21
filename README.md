@@ -16,6 +16,22 @@ npm.cmd run build
 npm.cmd run preview:host -- --port 4173
 ```
 
+## GitHub Pages
+
+The app deploys through GitHub Actions to:
+
+```text
+https://rd4bs.github.io/rat-tracker/
+```
+
+In GitHub, set `Settings -> Pages -> Build and deployment -> Source` to `GitHub Actions`.
+
+Then deploy with:
+
+```powershell
+git push
+```
+
 ## Checks
 
 ```powershell

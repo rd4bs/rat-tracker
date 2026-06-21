@@ -62,8 +62,14 @@ Choose one of these before declaring phone PWA install/offline behavior confirme
 
 This is the simplest and most production-like test.
 
-1. Build the app with `npm.cmd run build`.
-2. Deploy the `dist` output to an HTTPS host.
+The current hosted HTTPS target is GitHub Pages:
+
+```text
+https://rd4bs.github.io/rat-tracker/
+```
+
+1. Commit and push changes to `main`.
+2. Wait for the `Deploy Rat Tracker to GitHub Pages` workflow to pass.
 3. Open the HTTPS URL on the phone.
 4. Confirm service worker readiness.
 5. Install the app.
