@@ -4,7 +4,7 @@ import type {
   WorkoutSet,
   WorkoutTemplate,
 } from "@/types/workout";
-import { createId } from "@/utils/id";
+import { createId } from "./id.ts";
 
 function setTargetReps(set: WorkoutSet) {
   return set.targetReps ?? set.reps ?? set.actualReps;
