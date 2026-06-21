@@ -8,6 +8,7 @@ import {
 import type { Exercise } from "@/types/exercise";
 import type { WorkoutSet } from "@/types/workout";
 import { createId } from "@/utils/id";
+import ExercisePicker from "@/components/exercises/ExercisePicker";
 
 type PlannedExerciseDraft = {
   exerciseId: string;
@@ -46,9 +47,7 @@ export default function CreatePlanModal({
     PlannedExerciseDraft[]
   >([]);
   const workoutTypeRef = useRef<HTMLSelectElement>(null);
-  const exerciseSelectRef = useRef<HTMLSelectElement>(null);
   const lastTouchActionAtRef = useRef(0);
-  const availableExercises = exercises.filter((exercise) => !exercise.isArchived);
 
   useEffect(() => {
     if (isOpen) {
@@ -74,7 +73,7 @@ export default function CreatePlanModal({
   };
 
   const handleAddExercise = () => {
-    const exerciseId = selectedExerciseId || exerciseSelectRef.current?.value;
+    const exerciseId = selectedExerciseId;
     if (!exerciseId) return;
 
     const exercise = exercises.find((item) => item.id === exerciseId);
@@ -266,28 +265,13 @@ export default function CreatePlanModal({
           <div style={{ display: "grid", gap: 6 }}>
             <span style={{ fontWeight: 600 }}>Planned Exercises</span>
 
-            <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-              <select
-                ref={exerciseSelectRef}
-                value={selectedExerciseId}
-                onChange={(e) => setSelectedExerciseId(e.target.value)}
-                style={{
-                  flex: 1,
-                  minWidth: 240,
-                  padding: "10px 12px",
-                  borderRadius: 10,
-                  border: "1px solid #d1d5db",
-                  background: "#fff",
-                }}
-              >
-                <option value="">Select Exercise</option>
-
-                {availableExercises.map((exercise) => (
-                  <option key={exercise.id} value={exercise.id}>
-                    {exercise.name}
-                  </option>
-                ))}
-              </select>
+            <div className="exercise-picker-add-row">
+              <ExercisePicker
+                exercises={exercises}
+                selectedExerciseId={selectedExerciseId}
+                onSelectExercise={setSelectedExerciseId}
+                label="Planned Exercise"
+              />
 
               <button
                 type="button"

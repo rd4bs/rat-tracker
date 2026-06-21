@@ -3,6 +3,7 @@ import { db } from "@/db/db";
 import type { Exercise } from "@/types/exercise";
 import type { Workout, WorkoutExercise, WorkoutSet } from "@/types/workout";
 import { createId } from "@/utils/id";
+import ExercisePicker from "@/components/exercises/ExercisePicker";
 
 type Props = {
   workout: Workout;
@@ -56,10 +57,6 @@ export default function WorkoutTrackerPage({
 
   const exerciseMap = useMemo(() => {
     return new Map(exercises.map((exercise) => [exercise.id, exercise]));
-  }, [exercises]);
-
-  const availableExercises = useMemo(() => {
-    return exercises.filter((exercise) => !exercise.isArchived);
   }, [exercises]);
 
   const addExerciseById = (exerciseId: string) => {
@@ -293,24 +290,11 @@ export default function WorkoutTrackerPage({
           <h2 style={{ marginTop: 0 }}>Add Exercise</h2>
 
           <div className="tracker-add-exercise-row">
-            <select
-              value={selectedExerciseId}
-              onChange={(e) => setSelectedExerciseId(e.target.value)}
-              style={{
-                minWidth: 260,
-                padding: "10px 12px",
-                borderRadius: 10,
-                border: "1px solid #d1d5db",
-                background: "#fff",
-              }}
-            >
-              <option value="">Select Exercise</option>
-              {availableExercises.map((exercise) => (
-                <option key={exercise.id} value={exercise.id}>
-                  {exercise.name}
-                </option>
-              ))}
-            </select>
+            <ExercisePicker
+              exercises={exercises}
+              selectedExerciseId={selectedExerciseId}
+              onSelectExercise={setSelectedExerciseId}
+            />
 
             <button
               onClick={() => {
