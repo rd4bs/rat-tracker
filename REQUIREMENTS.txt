@@ -70,6 +70,11 @@ Completed Requirements So Far
 - Muscle-density filters by date range and workout status were added.
 - Notes review filters for type, date, muscle, equipment, and exercise were added.
 - Health gauge inputs for sleep, stress, travel, cardio, calories, and notes were added.
+- Workout templates were added.
+- Existing workouts can be saved as templates.
+- Templates can create new planned workouts.
+- Workouts can be duplicated to another date.
+- Duplicate workflow removes actual set results unless explicitly included.
 
 Recent Checkpoint Commits
 - 3631c09 Implement gym tracker responsive baseline
@@ -107,7 +112,6 @@ Upcoming Requirements To Implement
 - Add a documented local HTTPS testing workflow for phone testing.
 - Add a storage/data management screen if backup/import grows beyond the planner panel.
 - Add a clear data-reset option only if explicitly requested.
-- Add workout templates or duplicate-plan workflow.
 - Add calendar/month view if weekly planning becomes too limited.
 - Add import conflict handling if backup files contain older records.
 - Add optional backup preview before import.

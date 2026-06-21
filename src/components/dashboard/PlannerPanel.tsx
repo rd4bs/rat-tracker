@@ -5,6 +5,7 @@ type Props = {
   onOpenExerciseLibrary: () => void;
   onOpenHistory: () => void;
   onOpenProgress: () => void;
+  onOpenTemplates: () => void;
   onExportBackup: () => Promise<void> | void;
   onImportBackup: (file: File) => Promise<void> | void;
   backupMessage?: string;
@@ -17,6 +18,7 @@ export default function PlannerPanel({
   onOpenExerciseLibrary,
   onOpenHistory,
   onOpenProgress,
+  onOpenTemplates,
   onExportBackup,
   onImportBackup,
   backupMessage,
@@ -103,6 +105,22 @@ export default function PlannerPanel({
           }}
         >
           Exercise Progress
+        </button>
+
+        <button
+          type="button"
+          onClick={onOpenTemplates}
+          style={{
+            padding: "12px 16px",
+            borderRadius: 10,
+            border: "1px solid #d1d5db",
+            background: "#ffffff",
+            color: "#111827",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          Templates
         </button>
       </div>
 

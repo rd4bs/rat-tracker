@@ -34,3 +34,12 @@ export type Workout = {
   status?: WorkoutStatus;
   completedAt?: string;
 };
+
+export type WorkoutTemplate = {
+  id: string;
+  name: string;
+  notes?: string;
+  exercises: WorkoutExercise[];
+  createdAt: string;
+  updatedAt: string;
+};

@@ -9,7 +9,7 @@ import {
 import type { Exercise } from "@/types/exercise";
 import type { DailyHealthMetrics } from "@/types/health";
 import { EXERCISES } from "@/data/exercises";
-import type { Workout, WorkoutSet } from "@/types/workout";
+import type { Workout, WorkoutSet, WorkoutTemplate } from "@/types/workout";
 
 import DashboardHeader from "@/components/dashboard/DashboardHeader";
 import DashboardGrid from "@/components/dashboard/DashboardGrid";
@@ -23,9 +23,16 @@ import EditTodayPlanModal from "@/components/modals/EditTodayPlanModal";
 import ExerciseLibraryModal from "@/components/modals/ExerciseLibraryModal";
 import WorkoutHistoryModal from "@/components/modals/WorkoutHistoryModal";
 import ProgressHistoryModal from "@/components/modals/ProgressHistoryModal";
+import WorkoutTemplateModal from "@/components/modals/WorkoutTemplateModal";
+import DuplicateWorkoutModal from "@/components/modals/DuplicateWorkoutModal";
 import WorkoutTrackerPage from "@/pages/WorkoutTrackerPage";
 import NotesReviewModal from "@/components/modals/NotesReviewModal";
 import { createId } from "@/utils/id";
+import {
+  createPlannedWorkoutFromTemplate,
+  createPlannedWorkoutFromWorkout,
+  createWorkoutTemplateFromWorkout,
+} from "@/utils/workoutPlanning";
 
 function normalizeExerciseName(name: string) {
   return name.trim().toLowerCase();
@@ -38,10 +45,17 @@ export default function DashboardPage() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [healthMetrics, setHealthMetrics] = useState<DailyHealthMetrics[]>([]);
+  const [workoutTemplates, setWorkoutTemplates] = useState<WorkoutTemplate[]>(
+    []
+  );
   const [isCreatePlanOpen, setIsCreatePlanOpen] = useState(false);
   const [isExerciseLibraryOpen, setIsExerciseLibraryOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isProgressOpen, setIsProgressOpen] = useState(false);
+  const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
+  const [duplicatingWorkout, setDuplicatingWorkout] = useState<Workout | null>(
+    null
+  );
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
   const [activeWorkoutId, setActiveWorkoutId] = useState<string | null>(null);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
@@ -62,15 +76,22 @@ export default function DashboardPage() {
         await db.exercises.bulkPut(EXERCISES);
       }
 
-      const [workoutList, exerciseList, healthMetricList] = await Promise.all([
+      const [
+        workoutList,
+        exerciseList,
+        healthMetricList,
+        workoutTemplateList,
+      ] = await Promise.all([
         db.workouts.toArray(),
         db.exercises.toArray(),
         db.healthMetrics.toArray(),
+        db.workoutTemplates.toArray(),
       ]);
 
       setWorkouts(workoutList);
       setExercises(exerciseList);
       setHealthMetrics(healthMetricList);
+      setWorkoutTemplates(workoutTemplateList);
       setDataError("");
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
@@ -187,6 +208,93 @@ export default function DashboardPage() {
     setDataError("");
     await loadData();
     showSavedMessage("Workout saved");
+  };
+
+  const handleSaveWorkoutTemplate = async (workout: Workout) => {
+    setDataMessage("");
+    setDataError("");
+
+    try {
+      await db.workoutTemplates.put(createWorkoutTemplateFromWorkout(workout));
+      await loadData();
+      showSavedMessage("Workout template saved");
+    } catch (error) {
+      console.error("Failed to save workout template:", error);
+      setDataError("Workout template save failed.");
+      throw error;
+    }
+  };
+
+  const handleDeleteWorkoutTemplate = async (templateId: string) => {
+    setDataMessage("");
+    setDataError("");
+
+    try {
+      await db.workoutTemplates.delete(templateId);
+      await loadData();
+      showSavedMessage("Workout template deleted");
+    } catch (error) {
+      console.error("Failed to delete workout template:", error);
+      setDataError("Workout template delete failed.");
+      throw error;
+    }
+  };
+
+  const handleCreateWorkoutFromTemplate = async (
+    templateId: string,
+    date: string,
+    name: string
+  ) => {
+    const template = workoutTemplates.find((item) => item.id === templateId);
+    if (!template) {
+      throw new Error("Template not found");
+    }
+
+    setDataMessage("");
+    setDataError("");
+
+    try {
+      const plannedWorkout = createPlannedWorkoutFromTemplate(
+        template,
+        date,
+        name
+      );
+      await db.workouts.put(plannedWorkout);
+      await loadData();
+      setSelectedDate(date);
+      showSavedMessage("Workout created from template");
+    } catch (error) {
+      console.error("Failed to create workout from template:", error);
+      setDataError("Template workout creation failed.");
+      throw error;
+    }
+  };
+
+  const handleDuplicateWorkout = async (
+    workout: Workout,
+    date: string,
+    name: string,
+    includeActualResults: boolean
+  ) => {
+    setDataMessage("");
+    setDataError("");
+
+    try {
+      const plannedWorkout = createPlannedWorkoutFromWorkout(
+        workout,
+        date,
+        includeActualResults,
+        name
+      );
+      await db.workouts.put(plannedWorkout);
+      await loadData();
+      setSelectedDate(date);
+      showSavedMessage("Workout duplicated");
+    } catch (error) {
+      console.error("Failed to duplicate workout:", error);
+      setDataError("Workout duplicate failed.");
+      throw error;
+    }
   };
 
   const handleSaveHealthMetrics = async (metrics: DailyHealthMetrics) => {
@@ -309,7 +417,7 @@ export default function DashboardPage() {
       URL.revokeObjectURL(url);
 
       setBackupMessage(
-        `Exported ${backup.workouts.length} workouts, ${backup.exercises.length} exercises, and ${backup.healthMetrics?.length ?? 0} health entries.`
+        `Exported ${backup.workouts.length} workouts, ${backup.exercises.length} exercises, ${backup.healthMetrics?.length ?? 0} health entries, and ${backup.workoutTemplates?.length ?? 0} templates.`
       );
     } catch (error) {
       console.error("Failed to export backup:", error);
@@ -328,7 +436,7 @@ export default function DashboardPage() {
       const result = await importGymTrackerBackup(await file.text());
       await loadData();
       setBackupMessage(
-        `Imported ${result.workoutCount} workouts, ${result.exerciseCount} exercises, and ${result.healthMetricCount} health entries.`
+        `Imported ${result.workoutCount} workouts, ${result.exerciseCount} exercises, ${result.healthMetricCount} health entries, and ${result.templateCount} templates.`
       );
     } catch (error) {
       console.error("Failed to import backup:", error);
@@ -387,6 +495,8 @@ export default function DashboardPage() {
               workouts={workoutsForSelectedDate}
               onEditWorkout={setEditingWorkout}
               onStartWorkout={handleStartWorkout}
+              onDuplicateWorkout={setDuplicatingWorkout}
+              onSaveTemplate={handleSaveWorkoutTemplate}
             />
           }
           topRight={
@@ -402,6 +512,7 @@ export default function DashboardPage() {
               onOpenExerciseLibrary={() => setIsExerciseLibraryOpen(true)}
               onOpenHistory={() => setIsHistoryOpen(true)}
               onOpenProgress={() => setIsProgressOpen(true)}
+              onOpenTemplates={() => setIsTemplatesOpen(true)}
               onExportBackup={handleExportBackup}
               onImportBackup={handleImportBackup}
               backupMessage={backupMessage}
@@ -456,6 +567,24 @@ export default function DashboardPage() {
           workouts={workouts}
           exercises={exercises}
           onClose={() => setIsProgressOpen(false)}
+        />
+
+        <WorkoutTemplateModal
+          isOpen={isTemplatesOpen}
+          initialDate={selectedDate}
+          templates={workoutTemplates}
+          exercises={exercises}
+          onClose={() => setIsTemplatesOpen(false)}
+          onCreateWorkout={handleCreateWorkoutFromTemplate}
+          onDeleteTemplate={handleDeleteWorkoutTemplate}
+        />
+
+        <DuplicateWorkoutModal
+          isOpen={!!duplicatingWorkout}
+          workout={duplicatingWorkout}
+          initialDate={selectedDate}
+          onClose={() => setDuplicatingWorkout(null)}
+          onDuplicate={handleDuplicateWorkout}
         />
 
         <NotesReviewModal

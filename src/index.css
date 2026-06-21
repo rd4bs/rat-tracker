@@ -762,6 +762,125 @@ button {
   color: #374151;
 }
 
+.template-layout {
+  display: grid;
+  grid-template-columns: minmax(240px, 0.8fr) minmax(0, 1.2fr);
+  gap: 16px;
+}
+
+.template-list,
+.template-exercise-list {
+  display: grid;
+  gap: 10px;
+  align-content: start;
+}
+
+.template-list {
+  max-height: 58vh;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.template-list-item {
+  display: grid;
+  gap: 6px;
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+  color: #111827;
+  text-align: left;
+  cursor: pointer;
+}
+
+.template-list-item.is-selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.template-list-item span,
+.template-exercise-card span {
+  color: #6b7280;
+}
+
+.template-detail {
+  display: grid;
+  gap: 10px;
+  min-width: 0;
+}
+
+.template-detail label,
+.duplicate-form label {
+  display: grid;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.template-detail input,
+.duplicate-form input {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.template-exercise-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.template-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.template-actions button {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #111827;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.template-actions button:first-child {
+  border: none;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.template-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
+}
+
+.duplicate-form {
+  display: grid;
+  gap: 12px;
+}
+
+.duplicate-checkbox {
+  display: flex !important;
+  grid-template-columns: auto 1fr;
+  align-items: center;
+}
+
+.duplicate-checkbox input {
+  width: auto;
+}
+
 .notes-header {
   display: flex;
   align-items: center;
@@ -995,8 +1114,19 @@ button {
   .history-filters,
   .history-layout,
   .progress-summary,
-  .notes-filters {
+  .notes-filters,
+  .template-layout {
     grid-template-columns: 1fr;
+  }
+
+  .template-actions,
+  .template-exercise-card {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .template-actions button {
+    width: 100%;
   }
 
   .exercise-library-toolbar,

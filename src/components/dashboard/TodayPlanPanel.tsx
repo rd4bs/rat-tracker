@@ -10,6 +10,8 @@ type Props = {
   workouts: Workout[];
   onEditWorkout: (workout: Workout) => void;
   onStartWorkout: (workout: Workout) => void;
+  onDuplicateWorkout: (workout: Workout) => void;
+  onSaveTemplate: (workout: Workout) => Promise<void> | void;
 };
 
 export default function TodayPlanPanel({
@@ -17,6 +19,8 @@ export default function TodayPlanPanel({
   workouts,
   onEditWorkout,
   onStartWorkout,
+  onDuplicateWorkout,
+  onSaveTemplate,
 }: Props) {
   return (
     <div>
@@ -83,6 +87,34 @@ export default function TodayPlanPanel({
                   }}
                 >
                   Start Workout
+                </button>
+
+                <button
+                  onClick={() => onDuplicateWorkout(workout)}
+                  style={{
+                    padding: "10px 14px",
+                    borderRadius: 10,
+                    border: "1px solid #d1d5db",
+                    background: "#ffffff",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Duplicate
+                </button>
+
+                <button
+                  onClick={() => void onSaveTemplate(workout)}
+                  style={{
+                    padding: "10px 14px",
+                    borderRadius: 10,
+                    border: "1px solid #d1d5db",
+                    background: "#ffffff",
+                    fontWeight: 600,
+                    cursor: "pointer",
+                  }}
+                >
+                  Save Template
                 </button>
               </div>
             </div>
