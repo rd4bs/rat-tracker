@@ -191,6 +191,13 @@ button {
   min-height: 260px;
 }
 
+.planner-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 12px;
+}
+
 .week-navigation__scroller {
   width: 100%;
   min-width: 0;
@@ -356,6 +363,10 @@ button {
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.18);
 }
 
+.modal-content--wide {
+  max-width: 960px;
+}
+
 .modal-actions {
   position: sticky;
   bottom: 0;
@@ -380,6 +391,124 @@ button {
 
 .planned-set-field {
   min-width: 0;
+}
+
+.exercise-library-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+  gap: 16px;
+}
+
+.exercise-library-form,
+.exercise-library-list-panel {
+  min-width: 0;
+}
+
+.exercise-field {
+  display: grid;
+  gap: 6px;
+  margin-bottom: 10px;
+  font-weight: 600;
+}
+
+.exercise-field input,
+.exercise-field select,
+.exercise-library-toolbar input {
+  width: 100%;
+  min-width: 0;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 10px;
+  background: #ffffff;
+}
+
+.exercise-multi-select {
+  min-height: 112px;
+}
+
+.exercise-library-actions,
+.exercise-library-item-actions,
+.exercise-library-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+.exercise-library-toolbar {
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.exercise-library-toolbar input[type="search"] {
+  flex: 1;
+}
+
+.exercise-library-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+
+.exercise-library-list {
+  display: grid;
+  gap: 10px;
+}
+
+.exercise-library-item {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+  padding: 10px 12px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #f9fafb;
+}
+
+.exercise-library-item.is-archived {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.exercise-library-item p {
+  margin: 6px 0 0;
+  color: #6b7280;
+  line-height: 1.4;
+}
+
+.exercise-archive-label {
+  display: inline-flex;
+  margin-left: 8px;
+  padding: 3px 6px;
+  border-radius: 6px;
+  background: #e5e7eb;
+  color: #374151;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.exercise-library-actions button,
+.exercise-library-item-actions button,
+.modal-actions > button {
+  padding: 10px 14px;
+  border-radius: 10px;
+  border: 1px solid #d1d5db;
+  background: #ffffff;
+  color: #111827;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.exercise-library-actions button:last-child {
+  border: none;
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.exercise-library-actions button:disabled {
+  cursor: not-allowed;
+  opacity: 0.7;
 }
 
 @media (max-width: 760px) {
@@ -456,8 +585,14 @@ button {
   .tracker-add-exercise-row select,
   .tracker-add-exercise-row button,
   .tracker-actions button,
+  .planner-actions button,
   .data-safety-buttons button {
     width: 100%;
+  }
+
+  .planner-actions {
+    display: grid;
+    grid-template-columns: 1fr;
   }
 
   .data-safety-buttons {
@@ -519,6 +654,23 @@ button {
   .modal-actions-group {
     display: grid;
     grid-template-columns: 1fr;
+  }
+
+  .exercise-library-layout,
+  .exercise-library-item {
+    grid-template-columns: 1fr;
+  }
+
+  .exercise-library-toolbar,
+  .exercise-library-actions,
+  .exercise-library-item-actions {
+    display: grid;
+    grid-template-columns: 1fr;
+  }
+
+  .exercise-library-actions button,
+  .exercise-library-item-actions button {
+    width: 100%;
   }
 
   .planned-set-row {

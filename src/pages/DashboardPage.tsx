@@ -19,9 +19,14 @@ import TodayPlanPanel from "@/components/dashboard/TodayPlanPanel";
 import MuscleDensityPanel from "@/components/dashboard/MuscleDensityPanel";
 import CreatePlanModal from "@/components/modals/CreatePlanModal";
 import EditTodayPlanModal from "@/components/modals/EditTodayPlanModal";
+import ExerciseLibraryModal from "@/components/modals/ExerciseLibraryModal";
 import WorkoutTrackerPage from "@/pages/WorkoutTrackerPage";
 import NotesReviewModal from "@/components/modals/NotesReviewModal";
 import { createId } from "@/utils/id";
+
+function normalizeExerciseName(name: string) {
+  return name.trim().toLowerCase();
+}
 
 export default function DashboardPage() {
   const [selectedDate, setSelectedDate] = useState(
@@ -30,6 +35,7 @@ export default function DashboardPage() {
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
   const [isCreatePlanOpen, setIsCreatePlanOpen] = useState(false);
+  const [isExerciseLibraryOpen, setIsExerciseLibraryOpen] = useState(false);
   const [editingWorkout, setEditingWorkout] = useState<Workout | null>(null);
   const [activeWorkoutId, setActiveWorkoutId] = useState<string | null>(null);
   const [isNotesOpen, setIsNotesOpen] = useState(false);
@@ -169,6 +175,88 @@ export default function DashboardPage() {
     showSavedMessage("Workout saved");
   };
 
+  const hasDuplicateExerciseName = (name: string, currentId?: string) => {
+    const normalizedName = normalizeExerciseName(name);
+
+    return exercises.some(
+      (exercise) =>
+        !exercise.isArchived &&
+        exercise.id !== currentId &&
+        normalizeExerciseName(exercise.name) === normalizedName
+    );
+  };
+
+  const handleSaveCustomExercise = async (exercise: Exercise) => {
+    setDataMessage("");
+    setDataError("");
+
+    if (hasDuplicateExerciseName(exercise.name, exercise.id)) {
+      setDataError("An active exercise with this name already exists.");
+      throw new Error("Duplicate exercise name");
+    }
+
+    try {
+      await db.exercises.put(exercise);
+      await loadData();
+      showSavedMessage("Exercise saved");
+    } catch (error) {
+      console.error("Failed to save custom exercise:", error);
+      setDataError("Exercise save failed.");
+      throw error;
+    }
+  };
+
+  const handleArchiveCustomExercise = async (exerciseId: string) => {
+    const exercise = exercises.find((item) => item.id === exerciseId);
+    if (!exercise?.isCustom) return;
+
+    setDataMessage("");
+    setDataError("");
+
+    try {
+      await db.exercises.put({
+        ...exercise,
+        isArchived: true,
+        archivedAt: new Date().toISOString(),
+      });
+      await loadData();
+      showSavedMessage("Exercise archived");
+    } catch (error) {
+      console.error("Failed to archive custom exercise:", error);
+      setDataError("Exercise archive failed.");
+      throw error;
+    }
+  };
+
+  const handleRestoreCustomExercise = async (exerciseId: string) => {
+    const exercise = exercises.find((item) => item.id === exerciseId);
+    if (!exercise?.isCustom) return;
+
+    setDataMessage("");
+    setDataError("");
+
+    if (hasDuplicateExerciseName(exercise.name, exercise.id)) {
+      setDataError("An active exercise with this name already exists.");
+      throw new Error("Duplicate exercise name");
+    }
+
+    try {
+      const restoredExercise: Exercise = {
+        ...exercise,
+        isArchived: false,
+        archivedAt: undefined,
+      };
+
+      await db.exercises.put(restoredExercise);
+      await loadData();
+      showSavedMessage("Exercise restored");
+    } catch (error) {
+      console.error("Failed to restore custom exercise:", error);
+      setDataError("Exercise restore failed.");
+      throw error;
+    }
+  };
+
   const handleExportBackup = async () => {
     setIsBackupBusy(true);
     setBackupMessage("");
@@ -276,6 +364,7 @@ export default function DashboardPage() {
           bottomLeft={
             <PlannerPanel
               onOpenCreatePlan={() => setIsCreatePlanOpen(true)}
+              onOpenExerciseLibrary={() => setIsExerciseLibraryOpen(true)}
               onExportBackup={handleExportBackup}
               onImportBackup={handleImportBackup}
               backupMessage={backupMessage}
@@ -307,6 +396,15 @@ export default function DashboardPage() {
           onClose={() => setEditingWorkout(null)}
           onSave={handleSaveEditedWorkout}
           onDelete={handleDeleteWorkout}
+        />
+
+        <ExerciseLibraryModal
+          isOpen={isExerciseLibraryOpen}
+          exercises={exercises}
+          onClose={() => setIsExerciseLibraryOpen(false)}
+          onSaveExercise={handleSaveCustomExercise}
+          onArchiveExercise={handleArchiveCustomExercise}
+          onRestoreExercise={handleRestoreCustomExercise}
         />
 
         <NotesReviewModal

@@ -2,6 +2,7 @@ import { useRef, type ChangeEvent } from "react";
 
 type Props = {
   onOpenCreatePlan: () => void;
+  onOpenExerciseLibrary: () => void;
   onExportBackup: () => Promise<void> | void;
   onImportBackup: (file: File) => Promise<void> | void;
   backupMessage?: string;
@@ -11,6 +12,7 @@ type Props = {
 
 export default function PlannerPanel({
   onOpenCreatePlan,
+  onOpenExerciseLibrary,
   onExportBackup,
   onImportBackup,
   backupMessage,
@@ -35,21 +37,38 @@ export default function PlannerPanel({
         Create and assign workouts to a day.
       </p>
 
-      <button
-        onClick={onOpenCreatePlan}
-        style={{
-          marginTop: 12,
-          padding: "12px 16px",
-          borderRadius: 10,
-          border: "none",
-          background: "#2563eb",
-          color: "#ffffff",
-          fontWeight: 700,
-          cursor: "pointer",
-        }}
-      >
-        + Create / Plan Workout
-      </button>
+      <div className="planner-actions">
+        <button
+          onClick={onOpenCreatePlan}
+          style={{
+            padding: "12px 16px",
+            borderRadius: 10,
+            border: "none",
+            background: "#2563eb",
+            color: "#ffffff",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          + Create / Plan Workout
+        </button>
+
+        <button
+          type="button"
+          onClick={onOpenExerciseLibrary}
+          style={{
+            padding: "12px 16px",
+            borderRadius: 10,
+            border: "1px solid #d1d5db",
+            background: "#ffffff",
+            color: "#111827",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          Manage Exercises
+        </button>
+      </div>
 
       <div className="data-safety-actions">
         <h3 style={{ margin: "0 0 4px" }}>Local Data</h3>

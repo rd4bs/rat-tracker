@@ -48,6 +48,7 @@ export default function CreatePlanModal({
   const workoutTypeRef = useRef<HTMLSelectElement>(null);
   const exerciseSelectRef = useRef<HTMLSelectElement>(null);
   const lastTouchActionAtRef = useRef(0);
+  const availableExercises = exercises.filter((exercise) => !exercise.isArchived);
 
   useEffect(() => {
     if (isOpen) {
@@ -75,6 +76,9 @@ export default function CreatePlanModal({
   const handleAddExercise = () => {
     const exerciseId = selectedExerciseId || exerciseSelectRef.current?.value;
     if (!exerciseId) return;
+
+    const exercise = exercises.find((item) => item.id === exerciseId);
+    if (!exercise || exercise.isArchived) return;
 
     setSaveError("");
 
@@ -278,7 +282,7 @@ export default function CreatePlanModal({
               >
                 <option value="">Select Exercise</option>
 
-                {exercises.map((exercise) => (
+                {availableExercises.map((exercise) => (
                   <option key={exercise.id} value={exercise.id}>
                     {exercise.name}
                   </option>

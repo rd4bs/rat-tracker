@@ -58,9 +58,13 @@ export default function WorkoutTrackerPage({
     return new Map(exercises.map((exercise) => [exercise.id, exercise]));
   }, [exercises]);
 
+  const availableExercises = useMemo(() => {
+    return exercises.filter((exercise) => !exercise.isArchived);
+  }, [exercises]);
+
   const addExerciseById = (exerciseId: string) => {
     const exercise = exerciseMap.get(exerciseId);
-    if (!exercise) return;
+    if (!exercise || exercise.isArchived) return;
 
     const newExercise: WorkoutExercise = {
       id: createId(),
@@ -301,7 +305,7 @@ export default function WorkoutTrackerPage({
               }}
             >
               <option value="">Select Exercise</option>
-              {exercises.map((exercise) => (
+              {availableExercises.map((exercise) => (
                 <option key={exercise.id} value={exercise.id}>
                   {exercise.name}
                 </option>

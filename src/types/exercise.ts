@@ -14,4 +14,6 @@ export type Exercise = {
   };
 
   isCustom?: boolean;      // user-created exercise
+  isArchived?: boolean;    // hidden from new planning/tracking selections
+  archivedAt?: string;
 };
