@@ -77,6 +77,7 @@ Completed Requirements So Far
 - Duplicate workflow removes actual set results unless explicitly included.
 - Backup import preview was added.
 - Backup import conflict handling was added.
+- Calendar/month planning view was added.
 
 Recent Checkpoint Commits
 - 3631c09 Implement gym tracker responsive baseline
@@ -114,7 +115,6 @@ Upcoming Requirements To Implement
 - Add a documented local HTTPS testing workflow for phone testing.
 - Add a storage/data management screen if backup/import grows beyond the planner panel.
 - Add a clear data-reset option only if explicitly requested.
-- Add calendar/month view if weekly planning becomes too limited.
 - Add automated tests for backup validation.
 - Add automated tests for workout save/status transitions.
 - Add automated tests for planned target to actual tracking behavior.

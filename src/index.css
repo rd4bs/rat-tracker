@@ -916,6 +916,94 @@ button {
   gap: 8px;
 }
 
+.month-calendar-header {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.month-calendar-header h2 {
+  margin: 0;
+  text-align: center;
+}
+
+.month-calendar-header button {
+  padding: 8px 10px;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  background: #ffffff;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.month-calendar-weekdays,
+.month-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.month-calendar-weekdays {
+  margin-bottom: 8px;
+  color: #6b7280;
+  text-align: center;
+  font-size: 13px;
+}
+
+.month-calendar-day {
+  display: grid;
+  align-content: start;
+  gap: 6px;
+  min-height: 118px;
+  padding: 8px;
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+  background: #ffffff;
+  color: #111827;
+  text-align: left;
+  cursor: pointer;
+}
+
+.month-calendar-day.is-outside-month {
+  background: #f9fafb;
+  color: #9ca3af;
+}
+
+.month-calendar-day.is-selected {
+  border-color: #2563eb;
+  background: #eff6ff;
+}
+
+.month-calendar-day.is-today .month-calendar-date {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 999px;
+  background: #111827;
+  color: #ffffff;
+}
+
+.month-calendar-date {
+  font-weight: 800;
+}
+
+.month-calendar-empty {
+  color: #9ca3af;
+  font-size: 12px;
+}
+
+.month-calendar-workouts {
+  display: grid;
+  gap: 4px;
+  color: #374151;
+  font-size: 12px;
+  line-height: 1.3;
+}
+
 .notes-header {
   display: flex;
   align-items: center;
@@ -1166,6 +1254,26 @@ button {
 
   .backup-preview-grid {
     grid-template-columns: 1fr;
+  }
+
+  .month-calendar-header {
+    grid-template-columns: 1fr;
+  }
+
+  .month-calendar-header h2 {
+    order: -1;
+  }
+
+  .month-calendar-weekdays {
+    display: none;
+  }
+
+  .month-calendar-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .month-calendar-day {
+    min-height: auto;
   }
 
   .exercise-library-toolbar,

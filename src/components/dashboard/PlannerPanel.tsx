@@ -6,6 +6,7 @@ type Props = {
   onOpenHistory: () => void;
   onOpenProgress: () => void;
   onOpenTemplates: () => void;
+  onOpenMonthView: () => void;
   onExportBackup: () => Promise<void> | void;
   onImportBackup: (file: File) => Promise<void> | void;
   backupMessage?: string;
@@ -19,6 +20,7 @@ export default function PlannerPanel({
   onOpenHistory,
   onOpenProgress,
   onOpenTemplates,
+  onOpenMonthView,
   onExportBackup,
   onImportBackup,
   backupMessage,
@@ -121,6 +123,22 @@ export default function PlannerPanel({
           }}
         >
           Templates
+        </button>
+
+        <button
+          type="button"
+          onClick={onOpenMonthView}
+          style={{
+            padding: "12px 16px",
+            borderRadius: 10,
+            border: "1px solid #d1d5db",
+            background: "#ffffff",
+            color: "#111827",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          Month View
         </button>
       </div>
 

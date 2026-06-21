@@ -29,6 +29,7 @@ import ProgressHistoryModal from "@/components/modals/ProgressHistoryModal";
 import WorkoutTemplateModal from "@/components/modals/WorkoutTemplateModal";
 import DuplicateWorkoutModal from "@/components/modals/DuplicateWorkoutModal";
 import BackupImportPreviewModal from "@/components/modals/BackupImportPreviewModal";
+import MonthPlanningModal from "@/components/modals/MonthPlanningModal";
 import WorkoutTrackerPage from "@/pages/WorkoutTrackerPage";
 import NotesReviewModal from "@/components/modals/NotesReviewModal";
 import { createId } from "@/utils/id";
@@ -57,6 +58,7 @@ export default function DashboardPage() {
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [isProgressOpen, setIsProgressOpen] = useState(false);
   const [isTemplatesOpen, setIsTemplatesOpen] = useState(false);
+  const [isMonthViewOpen, setIsMonthViewOpen] = useState(false);
   const [duplicatingWorkout, setDuplicatingWorkout] = useState<Workout | null>(
     null
   );
@@ -550,6 +552,7 @@ export default function DashboardPage() {
               onOpenHistory={() => setIsHistoryOpen(true)}
               onOpenProgress={() => setIsProgressOpen(true)}
               onOpenTemplates={() => setIsTemplatesOpen(true)}
+              onOpenMonthView={() => setIsMonthViewOpen(true)}
               onExportBackup={handleExportBackup}
               onImportBackup={handleImportBackup}
               backupMessage={backupMessage}
@@ -629,6 +632,14 @@ export default function DashboardPage() {
           preview={backupPreview}
           onClose={handleCloseBackupPreview}
           onConfirm={handleConfirmImportBackup}
+        />
+
+        <MonthPlanningModal
+          isOpen={isMonthViewOpen}
+          selectedDate={selectedDate}
+          workouts={workouts}
+          onDateSelect={setSelectedDate}
+          onClose={() => setIsMonthViewOpen(false)}
         />
 
         <NotesReviewModal
