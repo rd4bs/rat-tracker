@@ -7,6 +7,7 @@ import {
   importGymTrackerBackup,
 } from "@/db/backup";
 import type { Exercise } from "@/types/exercise";
+import type { DailyHealthMetrics } from "@/types/health";
 import { EXERCISES } from "@/data/exercises";
 import type { Workout, WorkoutSet } from "@/types/workout";
 
@@ -36,6 +37,7 @@ export default function DashboardPage() {
   );
   const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [exercises, setExercises] = useState<Exercise[]>([]);
+  const [healthMetrics, setHealthMetrics] = useState<DailyHealthMetrics[]>([]);
   const [isCreatePlanOpen, setIsCreatePlanOpen] = useState(false);
   const [isExerciseLibraryOpen, setIsExerciseLibraryOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
@@ -60,13 +62,15 @@ export default function DashboardPage() {
         await db.exercises.bulkPut(EXERCISES);
       }
 
-      const [workoutList, exerciseList] = await Promise.all([
+      const [workoutList, exerciseList, healthMetricList] = await Promise.all([
         db.workouts.toArray(),
         db.exercises.toArray(),
+        db.healthMetrics.toArray(),
       ]);
 
       setWorkouts(workoutList);
       setExercises(exerciseList);
+      setHealthMetrics(healthMetricList);
       setDataError("");
     } catch (error) {
       console.error("Failed to load dashboard data:", error);
@@ -88,6 +92,12 @@ export default function DashboardPage() {
     if (!activeWorkoutId) return null;
     return workouts.find((w) => w.id === activeWorkoutId) ?? null;
   }, [workouts, activeWorkoutId]);
+
+  const healthMetricsForSelectedDate = useMemo(() => {
+    return (
+      healthMetrics.find((metrics) => metrics.date === selectedDate) ?? null
+    );
+  }, [healthMetrics, selectedDate]);
 
   const showSavedMessage = (message: string) => {
     setDataMessage(`${message} at ${dayjs().format("h:mm A")}.`);
@@ -177,6 +187,21 @@ export default function DashboardPage() {
     setDataError("");
     await loadData();
     showSavedMessage("Workout saved");
+  };
+
+  const handleSaveHealthMetrics = async (metrics: DailyHealthMetrics) => {
+    setDataMessage("");
+    setDataError("");
+
+    try {
+      await db.healthMetrics.put(metrics);
+      await loadData();
+      showSavedMessage("Health gauges saved");
+    } catch (error) {
+      console.error("Failed to save health gauges:", error);
+      setDataError("Health gauges save failed.");
+      throw error;
+    }
   };
 
   const hasDuplicateExerciseName = (name: string, currentId?: string) => {
@@ -284,7 +309,7 @@ export default function DashboardPage() {
       URL.revokeObjectURL(url);
 
       setBackupMessage(
-        `Exported ${backup.workouts.length} workouts and ${backup.exercises.length} exercises.`
+        `Exported ${backup.workouts.length} workouts, ${backup.exercises.length} exercises, and ${backup.healthMetrics?.length ?? 0} health entries.`
       );
     } catch (error) {
       console.error("Failed to export backup:", error);
@@ -303,7 +328,7 @@ export default function DashboardPage() {
       const result = await importGymTrackerBackup(await file.text());
       await loadData();
       setBackupMessage(
-        `Imported ${result.workoutCount} workouts and ${result.exerciseCount} exercises.`
+        `Imported ${result.workoutCount} workouts, ${result.exerciseCount} exercises, and ${result.healthMetricCount} health entries.`
       );
     } catch (error) {
       console.error("Failed to import backup:", error);
@@ -364,7 +389,13 @@ export default function DashboardPage() {
               onStartWorkout={handleStartWorkout}
             />
           }
-          topRight={<HealthGaugesPanel />}
+          topRight={
+            <HealthGaugesPanel
+              selectedDate={selectedDate}
+              metrics={healthMetricsForSelectedDate}
+              onSave={handleSaveHealthMetrics}
+            />
+          }
           bottomLeft={
             <PlannerPanel
               onOpenCreatePlan={() => setIsCreatePlanOpen(true)}
