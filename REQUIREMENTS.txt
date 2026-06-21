@@ -65,6 +65,7 @@ Completed Requirements So Far
 - Custom exercise archive and restore behavior was added.
 - Duplicate active exercise name validation was added.
 - Exercise search/filter was added to planning and tracking flows.
+- Workout history view was added.
 
 Recent Checkpoint Commits
 - 3631c09 Implement gym tracker responsive baseline
@@ -104,7 +105,6 @@ Upcoming Requirements To Implement
 - Add a clear data-reset option only if explicitly requested.
 - Add workout templates or duplicate-plan workflow.
 - Add calendar/month view if weekly planning becomes too limited.
-- Add history view for completed workouts.
 - Add per-exercise progress history.
 - Add muscle-density filters by date range and workout status.
 - Add notes review filters for workout, exercise, set, muscle, and machine/exercise.

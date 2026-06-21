@@ -3,6 +3,7 @@ import { useRef, type ChangeEvent } from "react";
 type Props = {
   onOpenCreatePlan: () => void;
   onOpenExerciseLibrary: () => void;
+  onOpenHistory: () => void;
   onExportBackup: () => Promise<void> | void;
   onImportBackup: (file: File) => Promise<void> | void;
   backupMessage?: string;
@@ -13,6 +14,7 @@ type Props = {
 export default function PlannerPanel({
   onOpenCreatePlan,
   onOpenExerciseLibrary,
+  onOpenHistory,
   onExportBackup,
   onImportBackup,
   backupMessage,
@@ -67,6 +69,22 @@ export default function PlannerPanel({
           }}
         >
           Manage Exercises
+        </button>
+
+        <button
+          type="button"
+          onClick={onOpenHistory}
+          style={{
+            padding: "12px 16px",
+            borderRadius: 10,
+            border: "1px solid #d1d5db",
+            background: "#ffffff",
+            color: "#111827",
+            fontWeight: 700,
+            cursor: "pointer",
+          }}
+        >
+          Workout History
         </button>
       </div>
 
